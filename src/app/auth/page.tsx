@@ -5,44 +5,10 @@ import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setMessage(null);
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        // Mensajes de error más específicos
-        if (error.message.includes('Invalid login credentials')) {
-          throw new Error('Credenciales de inicio de sesión inválidas. Por favor, verifica tu correo y contraseña.');
-        } else if (error.message.includes('Email not confirmed')) {
-          throw new Error('Tu correo electrónico no ha sido confirmado. Por favor, revisa tu bandeja de entrada.');
-        } else {
-          throw error;
-        }
-      }
-
-      setMessage('¡Inicio de sesión exitoso! Redirigiendo...');
-      router.push('/products'); // Redirige a la página de productos después del inicio de sesión
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -62,7 +28,6 @@ export default function AuthPage() {
       }
 
       // La redirección a la página de productos se manejará en el callback de Google
-      // setMessage('Redirigiendo a Google...');
     } catch (err: unknown) {
       setError((err as Error).message);
     } finally {
@@ -71,62 +36,29 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Inicio de Sesión</h1>
-      <form onSubmit={handleSignIn} className="bg-white p-6 rounded shadow-md">
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Correo Electrónico:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">Contraseña:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            disabled={loading}
-          >
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/register')}
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Registrarse
-          </button>
-        </div>
-        {error && <p className="text-red-500 text-xs italic mt-4">Error: {error}</p>}
-        {message && <p className="text-blue-500 text-xs italic mt-4">{message}</p>}
+    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+      <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md text-center">
+        <h1 className="text-3xl font-bold mb-6">Acceder a Inventario ATT</h1>
+        <p className="mb-8 text-gray-400">Inicia sesión con tu cuenta de Google</p>
 
-        <div className="mt-6 text-center">
-          <p className="mb-4">O iniciar sesión con:</p>
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-            disabled={loading}
-          >
-            Iniciar Sesión con Google
-          </button>
-        </div>
-      </form>
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline w-full text-lg flex items-center justify-center space-x-2"
+          disabled={loading}
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M22.449 12.217c0-.756-.069-1.48-.198-2.186H12v4.116h6.185c-.266 1.393-1.077 2.585-2.228 3.393v2.677h3.454c2.028-1.871 3.208-4.636 3.208-7.999z" fillRule="evenodd"></path>
+            <path d="M12 23c3.276 0 6.02-1.085 8.026-2.956l-3.454-2.677c-.96.64-2.181 1.02-3.372 1.02-2.583 0-4.783-1.745-5.579-4.089H2.923v2.756C5.076 21.012 8.356 23 12 23z" fillRule="evenodd"></path>
+            <path d="M6.421 14.822c-.2-.64-.316-1.32-.316-2.071s.116-1.432.316-2.071V8.023H2.923A9.976 9.976 0 002 12c0 1.696.38 3.307 1.054 4.717l3.367-2.895z" fillRule="evenodd"></path>
+            <path d="M12 4.978c1.419 0 2.697.487 3.702 1.432l3.078-3.078C18.006 1.83 15.262.085 12 .085c-3.644 0-6.924 1.988-8.923 4.717l3.367 2.895c.796-2.344 3.0-4.089 5.579-4.089z" fillRule="evenodd"></path>
+          </svg>
+          <span>{loading ? 'Redirigiendo a Google...' : 'Iniciar Sesión con Google'}</span>
+        </button>
+
+        {error && <p className="text-red-400 text-sm italic mt-4">Error: {error}</p>}
+        {message && <p className="text-blue-400 text-sm italic mt-4">{message}</p>}
+      </div>
     </div>
   );
 }
