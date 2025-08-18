@@ -36,8 +36,8 @@ export default function AddProductPage() {
       setPrice(0);
       setStock(0);
       router.push('/products'); // Redirigir a la lista de productos
-    } catch (err: Error) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }

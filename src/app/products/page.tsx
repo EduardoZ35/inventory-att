@@ -37,8 +37,8 @@ export default function ProductsPage() {
         }
 
         setProducts(data as Product[]);
-      } catch (err: Error) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError((err as Error).message);
       } finally {
         setLoading(false);
       }

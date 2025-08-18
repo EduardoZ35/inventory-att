@@ -44,8 +44,8 @@ export default function EditProductPage() {
           setDescription(data.description);
           setPrice(data.price);
           setStock(data.stock);
-        } catch (err: Error) {
-          setError(err.message);
+        } catch (err: unknown) {
+          setError((err as Error).message);
         } finally {
           setLoading(false);
         }
@@ -72,8 +72,8 @@ export default function EditProductPage() {
 
       setSuccess('Producto actualizado exitosamente!');
       router.push(`/products/${id}`); // Redirigir a la página de detalles del producto
-    } catch (err: Error) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError((err as Error).message);
     } finally {
       setSubmitting(false);
     }
