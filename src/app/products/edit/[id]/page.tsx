@@ -9,7 +9,6 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  stock: number;
 }
 
 export default function EditProductPage() {
@@ -19,7 +18,6 @@ export default function EditProductPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState<number>(0);
-  const [stock, setStock] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +29,7 @@ export default function EditProductPage() {
         try {
           const { data, error } = await supabase
             .from('products')
-            .select('*')
+            .select('id, name, description, price')
             .eq('id', id)
             .single();
 
@@ -43,7 +41,6 @@ export default function EditProductPage() {
           setName(data.name);
           setDescription(data.description);
           setPrice(data.price);
-          setStock(data.stock);
         } catch (err: unknown) {
           setError((err as Error).message);
         } finally {
@@ -63,7 +60,7 @@ export default function EditProductPage() {
     try {
       const { error } = await supabase
         .from('products')
-        .update({ name, description, price, stock })
+        .update({ name, description, price })
         .eq('id', id);
 
       if (error) {
@@ -117,24 +114,13 @@ export default function EditProductPage() {
             required
           ></textarea>
         </div>
-        <div className="mb-4">
+        <div className="mb-6">
           <label htmlFor="price" className="block text-gray-700 text-sm font-bold mb-2">Precio:</label>
           <input
             type="number"
             id="price"
             value={price}
             onChange={(e) => setPrice(parseFloat(e.target.value))}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="stock" className="block text-gray-700 text-sm font-bold mb-2">Stock:</label>
-          <input
-            type="number"
-            id="stock"
-            value={stock}
-            onChange={(e) => setStock(parseInt(e.target.value))}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             required
           />

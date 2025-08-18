@@ -8,7 +8,6 @@ export default function AddProductPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState<number>(0);
-  const [stock, setStock] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -23,7 +22,7 @@ export default function AddProductPage() {
     try {
       const { error } = await supabase
         .from('products')
-        .insert([{ name, description, price, stock }])
+        .insert([{ name, description, price }])
         .select();
 
       if (error) {
@@ -34,7 +33,6 @@ export default function AddProductPage() {
       setName('');
       setDescription('');
       setPrice(0);
-      setStock(0);
       router.push('/products'); // Redirigir a la lista de productos
     } catch (err: unknown) {
       setError((err as Error).message);
@@ -69,24 +67,13 @@ export default function AddProductPage() {
             required
           ></textarea>
         </div>
-        <div className="mb-4">
+        <div className="mb-6">
           <label htmlFor="price" className="block text-gray-700 text-sm font-bold mb-2">Precio:</label>
           <input
             type="number"
             id="price"
             value={price}
             onChange={(e) => setPrice(parseFloat(e.target.value))}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="stock" className="block text-gray-700 text-sm font-bold mb-2">Stock:</label>
-          <input
-            type="number"
-            id="stock"
-            value={stock}
-            onChange={(e) => setStock(parseInt(e.target.value))}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             required
           />

@@ -9,7 +9,6 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  stock: number;
 }
 
 export default function ProductsPage() {
@@ -24,7 +23,7 @@ export default function ProductsPage() {
       setLoading(true);
       setError(null);
       try {
-        let query = supabase.from('products').select('id, name, description, price, stock');
+        let query = supabase.from('products').select('id, name, description, price');
 
         if (searchTerm) {
           query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
@@ -84,7 +83,6 @@ export default function ProductsPage() {
                 <th className="py-2 px-4 border-b text-left">Nombre</th>
                 <th className="py-2 px-4 border-b text-left">Descripción</th>
                 <th className="py-2 px-4 border-b text-left">Precio</th>
-                <th className="py-2 px-4 border-b text-left">Stock</th>
               </tr>
             </thead>
             <tbody>
@@ -95,7 +93,6 @@ export default function ProductsPage() {
                   <td className="py-2 px-4 border-b">{product.name}</td>
                   <td className="py-2 px-4 border-b">{product.description}</td>
                   <td className="py-2 px-4 border-b">{product.price}</td>
-                  <td className="py-2 px-4 border-b">{product.stock}</td>
                 </tr>
               ))}
             </tbody>

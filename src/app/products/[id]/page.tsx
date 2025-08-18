@@ -9,7 +9,6 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  stock: number;
 }
 
 export default function ProductDetailsPage() {
@@ -25,7 +24,7 @@ export default function ProductDetailsPage() {
         try {
           const { data, error } = await supabase
             .from('products')
-            .select('*')
+            .select('id, name, description, price')
             .eq('id', id)
             .single();
 
@@ -63,7 +62,6 @@ export default function ProductDetailsPage() {
         <p><strong>Nombre:</strong> {product.name}</p>
         <p><strong>Descripción:</strong> {product.description}</p>
         <p><strong>Precio:</strong> {product.price}</p>
-        <p><strong>Stock:</strong> {product.stock}</p>
         <p><strong>ID:</strong> {product.id}</p>
         <div className="flex space-x-4 mt-4">
           <button
@@ -71,6 +69,12 @@ export default function ProductDetailsPage() {
             className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
           >
             Editar Producto
+          </button>
+          <button
+            onClick={() => router.push(`/products/${product.id}/add-detail`)}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Agregar Números de Serie
           </button>
           <button
             onClick={() => router.push('/products')}
