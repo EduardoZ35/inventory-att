@@ -44,6 +44,32 @@ export default function AuthPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // La redirección a la página de productos se manejará en el callback de Google
+      // setMessage('Redirigiendo a Google...');
+    } catch (err: unknown) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Inicio de Sesión</h1>
@@ -88,6 +114,18 @@ export default function AuthPage() {
         </div>
         {error && <p className="text-red-500 text-xs italic mt-4">Error: {error}</p>}
         {message && <p className="text-blue-500 text-xs italic mt-4">{message}</p>}
+
+        <div className="mt-6 text-center">
+          <p className="mb-4">O iniciar sesión con:</p>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+            disabled={loading}
+          >
+            Iniciar Sesión con Google
+          </button>
+        </div>
       </form>
     </div>
   );
