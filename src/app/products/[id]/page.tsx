@@ -34,7 +34,7 @@ export default function ProductDetailsPage() {
           }
 
           setProduct(data as Product);
-        } catch (err: any) {
+        } catch (err: Error) {
           setError(err.message);
         } finally {
           setLoading(false);

@@ -21,7 +21,7 @@ export default function AddProductPage() {
     setSuccess(null);
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('products')
         .insert([{ name, description, price, stock }])
         .select();
@@ -36,7 +36,7 @@ export default function AddProductPage() {
       setPrice(0);
       setStock(0);
       router.push('/products'); // Redirigir a la lista de productos
-    } catch (err: any) {
+    } catch (err: Error) {
       setError(err.message);
     } finally {
       setLoading(false);
