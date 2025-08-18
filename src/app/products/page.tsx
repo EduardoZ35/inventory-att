@@ -5,10 +5,12 @@ import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
 interface Product {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
+  product_type_id: number;
+  product_model_id: number;
 }
 
 export default function ProductsPage() {
@@ -23,7 +25,7 @@ export default function ProductsPage() {
       setLoading(true);
       setError(null);
       try {
-        let query = supabase.from('products').select('id, name, description, price');
+        let query = supabase.from('products').select('id, name, description, price, product_type_id, product_model_id');
 
         if (searchTerm) {
           query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
@@ -56,11 +58,11 @@ export default function ProductsPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Lista de Productos</h1>
+      <h1 className="text-2xl font-bold mb-4">Lista de Productos Genéricos</h1>
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Buscar productos..."
+          placeholder="Buscar productos genéricos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -70,11 +72,11 @@ export default function ProductsPage() {
         onClick={() => router.push('/products/add')}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
       >
-        Agregar Nuevo Producto
+        Agregar Nuevo Producto Genérico
       </button>
 
       {products.length === 0 ? (
-        <p>No hay productos disponibles.</p>
+        <p>No hay productos genéricos disponibles.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-200">
@@ -83,6 +85,8 @@ export default function ProductsPage() {
                 <th className="py-2 px-4 border-b text-left">Nombre</th>
                 <th className="py-2 px-4 border-b text-left">Descripción</th>
                 <th className="py-2 px-4 border-b text-left">Precio</th>
+                <th className="py-2 px-4 border-b text-left">Tipo</th>
+                <th className="py-2 px-4 border-b text-left">Modelo</th>
               </tr>
             </thead>
             <tbody>
@@ -93,6 +97,8 @@ export default function ProductsPage() {
                   <td className="py-2 px-4 border-b">{product.name}</td>
                   <td className="py-2 px-4 border-b">{product.description}</td>
                   <td className="py-2 px-4 border-b">{product.price}</td>
+                  <td className="py-2 px-4 border-b">{product.product_type_id}</td>
+                  <td className="py-2 px-4 border-b">{product.product_model_id}</td>
                 </tr>
               ))}
             </tbody>

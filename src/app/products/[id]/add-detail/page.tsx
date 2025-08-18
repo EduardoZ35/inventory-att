@@ -1,17 +1,36 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams, useRouter } from 'next/navigation';
+
+interface ProductState {
+  id: number;
+  name: string;
+}
 
 export default function AddProductDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const [serialNumbers, setSerialNumbers] = useState('');
-  const [status, setStatus] = useState('available'); // Estado por defecto
+  const [stateId, setStateId] = useState<number | ''>(''); // Ahora es stateId, no status
+  const [productStates, setProductStates] = useState<ProductState[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProductStates = async () => {
+      const { data, error } = await supabase.from('product_states').select('id, name');
+      if (error) {
+        console.error('Error fetching product states:', error);
+      } else {
+        setProductStates(data);
+      }
+    };
+
+    fetchProductStates();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +39,7 @@ export default function AddProductDetailPage() {
     setSuccess(null);
 
     if (!id) {
-      setError('ID de producto no proporcionado.');
+      setError('ID de producto genérico no proporcionado.');
       setLoading(false);
       return;
     }
@@ -33,26 +52,33 @@ export default function AddProductDetailPage() {
       return;
     }
 
-    const productDetailsToInsert = serials.map(serial_number => ({
-      product_id: parseInt(id as string),
+    if (stateId === '') {
+      setError('Por favor, selecciona un estado.');
+      setLoading(false);
+      return;
+    }
+
+    const productInstancesToInsert = serials.map(serial_number => ({
+      product_definition_id: parseInt(id as string),
       serial_number,
-      status,
+      state_id: stateId, // Usamos state_id
+      -- Otros campos de product_instances se omitirán o se establecerán en NULL/valores por defecto de la DB
     }));
 
     try {
       const { error } = await supabase
-        .from('product_detail')
-        .insert(productDetailsToInsert)
+        .from('product_instances') // Cambiado a product_instances
+        .insert(productInstancesToInsert)
         .select();
 
       if (error) {
         throw error;
       }
 
-      setSuccess(`Se agregaron ${productDetailsToInsert.length} números de serie exitosamente!`);
+      setSuccess(`Se agregaron ${productInstancesToInsert.length} números de serie exitosamente!`);
       setSerialNumbers('');
-      setStatus('available');
-      router.push(`/products/${id}`); // Redirigir a la página de detalles del producto
+      setStateId(''); // Reiniciar el estado
+      router.push(`/products/${id}`); // Redirigir a la página de detalles del producto genérico
     } catch (err: unknown) {
       setError((err as Error).message);
     } finally {
@@ -62,7 +88,7 @@ export default function AddProductDetailPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Agregar Números de Serie para Producto ID: {id}</h1>
+      <h1 className="text-2xl font-bold mb-4">Agregar Instancias para Producto Genérico ID: {id}</h1>
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md">
         <div className="mb-4">
           <label htmlFor="serialNumbers" className="block text-gray-700 text-sm font-bold mb-2">Números de Serie (uno por línea):</label>
@@ -76,17 +102,20 @@ export default function AddProductDetailPage() {
           ></textarea>
         </div>
         <div className="mb-4">
-          <label htmlFor="status" className="block text-gray-700 text-sm font-bold mb-2">Estado:</label>
+          <label htmlFor="state" className="block text-gray-700 text-sm font-bold mb-2">Estado:</label>
           <select
-            id="status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            id="state"
+            value={stateId}
+            onChange={(e) => setStateId(parseInt(e.target.value))}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required
           >
-            <option value="available">Disponible</option>
-            <option value="assigned">Asignado</option>
-            <option value="defective">Defectuoso</option>
-            <option value="in_repair">En Reparación</option>
+            <option value="">Selecciona un estado</option>
+            {productStates.map((state) => (
+              <option key={state.id} value={state.id}>
+                {state.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex items-center justify-between">
