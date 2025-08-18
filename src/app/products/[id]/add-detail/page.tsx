@@ -61,8 +61,7 @@ export default function AddProductDetailPage() {
     const productInstancesToInsert = serials.map(serial_number => ({
       product_definition_id: parseInt(id as string),
       serial_number,
-      state_id: stateId, // Usamos state_id
-      -- Otros campos de product_instances se omitirán o se establecerán en NULL/valores por defecto de la DB
+      state_id: stateId,
     }));
 
     try {

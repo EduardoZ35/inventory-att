@@ -18,7 +18,6 @@ interface ProductInstance {
   product_definition_id: number;
   serial_number: string;
   state_id: number;
-  -- otros campos como warranty_start_date, currency_id, etc. irían aquí
 }
 
 export default function ProductDetailsPage() {
