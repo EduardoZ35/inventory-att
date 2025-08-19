@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
@@ -22,7 +22,7 @@ export default function ProductsPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const router = useRouter();
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -44,9 +44,9 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, supabase, setProducts, setLoading, setError]);
 
-  const handleDeleteProduct = async (productId: number) => {
+  const handleDeleteProduct = useCallback(async (productId: number) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este producto genérico? Esto no eliminará las instancias físicas.')) return;
 
     try {
@@ -62,7 +62,7 @@ export default function ProductsPage() {
     } catch (err: unknown) {
       setError((err as Error).message);
     }
-  };
+  }, [supabase, fetchProducts, setError]);
 
   useEffect(() => {
     fetchProducts();
@@ -90,7 +90,7 @@ export default function ProductsPage() {
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [searchTerm]);
+  }, [searchTerm, fetchProducts]);
 
   if (loading) {
     return <p>Cargando productos...</p>;

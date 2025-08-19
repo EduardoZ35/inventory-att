@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -32,7 +32,7 @@ export default function ProductDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
 
-  const fetchProductAndInstances = async () => {
+  const fetchProductAndInstances = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     setError(null);
@@ -66,9 +66,9 @@ export default function ProductDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, supabase, setLoading, setError, setProduct, setProductInstances]);
 
-  const handleDeleteInstance = async (instanceId: number) => {
+  const handleDeleteInstance = useCallback(async (instanceId: number) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta instancia de producto?')) return;
 
     try {
@@ -85,7 +85,7 @@ export default function ProductDetailsPage() {
     } catch (err: unknown) {
       setError((err as Error).message);
     }
-  };
+  }, [supabase, fetchProductAndInstances, setError]);
 
   useEffect(() => {
     fetchProductAndInstances();
@@ -113,7 +113,7 @@ export default function ProductDetailsPage() {
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [id]); // id dependency for fetchProductAndInstances
+  }, [id, fetchProductAndInstances]); // id dependency for fetchProductAndInstances
 
   if (loading) {
     return <p>Cargando detalles del producto genérico y sus instancias...</p>;
