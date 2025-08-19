@@ -12,13 +12,14 @@ export async function middleware(req: NextRequest) {
     {
       cookies: {
         get(name: string) {
-          return req.cookies.get(name)?.value
+          const cookie = req.cookies.get(name)
+          return cookie ? cookie.value : null // Devolver null si no se encuentra
         },
         set(name: string, value: string, options: CookieOptions) {
           res.cookies.set(name, value, options)
         },
-        delete(name: string) {
-          res.cookies.delete(name)
+        remove(name: string, options: CookieOptions) {
+          res.cookies.set(name, '', options) // Establecer valor vacío con opciones para eliminar
         },
       },
     }
