@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function AuthPage() {
+// Componente que usa searchParams envuelto en Suspense
+function AuthContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -135,5 +136,23 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Componente principal que usa Suspense
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="auth-container gradient-bg">
+        <div className="auth-card">
+          <div className="text-center p-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+            <p className="text-gray-600">Cargando...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <AuthContent />
+    </Suspense>
   );
 }
