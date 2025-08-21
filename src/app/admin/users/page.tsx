@@ -671,7 +671,13 @@ export default function UserAdminPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                   <select
                     value={profile.role}
-                        onChange={(e) => handleRoleChange(profile.id, e.target.value as 'admin' | 'manager' | 'viewer' | 'blocked')}
+                        onChange={(e) => {
+                          // Solo permitir cambiar a roles válidos para la función
+                          const value = e.target.value;
+                          if (value === 'admin' || value === 'manager' || value === 'viewer') {
+                            handleRoleChange(profile.id, value);
+                          }
+                        }}
                         className={`text-sm font-medium px-3 py-1 rounded-full border-0 focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
                           profile.role === 'admin' 
                             ? 'bg-red-100 text-red-800 focus:ring-red-500' 
