@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google"; // Eliminado para compatibilidad con Next.js 14
 import "./globals.css";
-import LayoutWrapper from '@/components/LayoutWrapper'; // Importar el nuevo componente
+import ConditionalLayoutWrapper from '@/components/ConditionalLayoutWrapper'; // Importar el nuevo componente
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -26,11 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`antialiased flex min-h-screen`}
+        className={`antialiased min-h-screen`}
       >
-        <LayoutWrapper>
-          {children}
-        </LayoutWrapper>
+        <ThemeProvider>
+          <ConditionalLayoutWrapper>
+            {children}
+          </ConditionalLayoutWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

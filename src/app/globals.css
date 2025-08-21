@@ -1,8 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colores principales para modo claro */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  
+  /* Gradientes modernos para modo claro */
+  --gradient-primary: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+  --gradient-secondary: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
+  --gradient-accent: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 50%, #d8b4fe 100%);
+  
+  /* Colores de texto para modo claro */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-accent: #3b82f6;
+  
+  /* Colores de la sidebar para modo claro */
+  --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+  --sidebar-hover: rgba(59, 130, 246, 0.1);
+  
+  /* Colores de tarjetas para modo claro */
+  --card-bg: #ffffff;
+  --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --card-shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  
+  /* Colores de estado para modo claro */
+  --success-bg: #dcfce7;
+  --success-text: #166534;
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  --error-bg: #fecaca;
+  --error-text: #991b1b;
+  --info-bg: #dbeafe;
+  --info-text: #1e40af;
 }
 
 @theme inline {
@@ -12,15 +43,385 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Modo oscuro mejorado con mejor contraste */
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  
+  /* Gradientes para modo oscuro */
+  --gradient-primary: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+  --gradient-secondary: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #4338ca 100%);
+  --gradient-accent: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #8b5cf6 100%);
+  
+  /* Colores de tarjetas en modo oscuro */
+  --card-bg: #1e293b;
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --card-shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  
+  /* Colores de texto mejorados para modo oscuro */
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-accent: #60a5fa;
+  
+  /* Colores de estado en modo oscuro */
+  --success-bg: #064e3b;
+  --success-text: #6ee7b7;
+  --warning-bg: #92400e;
+  --warning-text: #fcd34d;
+  --error-bg: #7f1d1d;
+  --error-text: #fca5a5;
+  --info-bg: #1e3a8a;
+  --info-text: #93c5fd;
+  
+  /* Sidebar en modo oscuro */
+  --sidebar-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  --sidebar-hover: rgba(59, 130, 246, 0.2);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --gradient-primary: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    --gradient-secondary: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #4338ca 100%);
+    --card-bg: #1e293b;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Transiciones suaves para el cambio de tema */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Clases utilitarias personalizadas */
+.gradient-bg {
+  background: var(--gradient-primary);
+}
+
+.gradient-secondary {
+  background: var(--gradient-secondary);
+}
+
+.gradient-accent {
+  background: var(--gradient-accent);
+}
+
+.card-modern {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(203, 213, 225, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+.card-modern:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3);
+}
+
+/* Clases específicas para centrado de páginas de autenticación */
+.auth-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+/* Clases utilitarias para texto responsivo al tema */
+.text-primary {
+  color: var(--foreground);
+}
+
+.text-secondary {
+  color: var(--text-secondary, #64748b);
+}
+
+.text-muted {
+  color: var(--text-muted, #94a3b8);
+}
+
+.text-accent {
+  color: var(--text-accent, #3b82f6);
+}
+
+/* Sistema completo de modo oscuro */
+.dark {
+  color-scheme: dark;
+}
+
+.dark .card-modern {
+  background: var(--card-bg) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark .gradient-bg {
+  background: var(--gradient-primary) !important;
+}
+
+/* Correcciones de texto para modo oscuro */
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.dark .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+.dark .text-emerald-600 {
+  color: #34d399 !important;
+}
+
+.dark .text-orange-600 {
+  color: #fb923c !important;
+}
+
+.dark .text-red-600 {
+  color: #f87171 !important;
+}
+
+.dark .text-green-600 {
+  color: #4ade80 !important;
+}
+
+.dark .text-purple-600 {
+  color: #a78bfa !important;
+}
+
+.dark .text-yellow-600 {
+  color: #facc15 !important;
+}
+
+/* Fondos y bordes en modo oscuro */
+.dark .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #334155 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #475569 !important;
+}
+
+.dark .border-gray-200 {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+/* Colores específicos de badges y estados */
+.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.dark .text-blue-800 {
+  color: #93c5fd !important;
+}
+
+.dark .bg-green-100 {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+.dark .text-green-800 {
+  color: #86efac !important;
+}
+
+.dark .bg-orange-100 {
+  background-color: rgba(251, 146, 60, 0.2) !important;
+}
+
+.dark .text-orange-800 {
+  color: #fdba74 !important;
+}
+
+.dark .bg-red-100 {
+  background-color: rgba(248, 113, 113, 0.2) !important;
+}
+
+.dark .text-red-800 {
+  color: #fca5a5 !important;
+}
+
+.dark .bg-emerald-100 {
+  background-color: rgba(52, 211, 153, 0.2) !important;
+}
+
+.dark .text-emerald-800 {
+  color: #6ee7b7 !important;
+}
+
+.dark .bg-purple-100 {
+  background-color: rgba(167, 139, 250, 0.2) !important;
+}
+
+.dark .text-purple-800 {
+  color: #c4b5fd !important;
+}
+
+.dark .bg-yellow-100 {
+  background-color: rgba(250, 204, 21, 0.2) !important;
+}
+
+.dark .text-yellow-800 {
+  color: #fde047 !important;
+}
+
+/* Hover states en modo oscuro */
+.dark .hover\\:bg-gray-50:hover {
+  background-color: rgba(148, 163, 184, 0.1) !important;
+}
+
+.dark .hover\\:bg-gray-100:hover {
+  background-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Inputs y forms en modo oscuro */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #334155 !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Clases adicionales para asegurar el cambio completo */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: var(--text-primary) !important;
+}
+
+.dark p {
+  color: var(--text-secondary) !important;
+}
+
+.dark span:not([class*="text-"]) {
+  color: var(--text-secondary) !important;
+}
+
+.dark div:not([class*="bg-"]) {
+  color: var(--text-secondary) !important;
+}
+
+/* Mejoras específicas para el dashboard */
+.dark .dashboard-stat {
+  background: var(--card-bg) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark .dashboard-stat h2,
+.dark .dashboard-stat h3,
+.dark .dashboard-stat .stat-number {
+  color: var(--text-primary) !important;
+}
+
+.dark .dashboard-stat p,
+.dark .dashboard-stat .stat-label {
+  color: var(--text-secondary) !important;
+}
+
+/* Botones en modo oscuro */
+.dark .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  border: none !important;
+}
+
+.dark .btn-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+  border: none !important;
+}
+
+/* Fix para tablas en modo oscuro */
+.dark table {
+  background: var(--card-bg) !important;
+}
+
+.dark th {
+  background: #334155 !important;
+  color: var(--text-primary) !important;
+}
+
+.dark td {
+  color: var(--text-secondary) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Sidebar específico en modo oscuro */
+.dark aside {
+  background: var(--sidebar-bg) !important;
 }
