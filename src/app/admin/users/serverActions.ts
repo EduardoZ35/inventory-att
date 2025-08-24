@@ -51,8 +51,19 @@ interface Profile {
 }
 
 export async function listAllUserProfiles(accessToken?: string): Promise<{ profiles: Profile[] | null; error: string | null }> {
+  console.log('🚀 [SERVER] Iniciando listAllUserProfiles...');
+  
   if (!accessToken) {
+    console.log('❌ [SERVER] No access token provided');
     return { profiles: null, error: 'Access token required' };
+  }
+
+  console.log('🔧 [SERVER] Configurando cliente Supabase...');
+  
+  // Verificar variables de entorno
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.error('❌ [SERVER] Missing Supabase environment variables');
+    return { profiles: null, error: 'Missing Supabase configuration' };
   }
 
   // Crear cliente con token de acceso directo
@@ -73,41 +84,78 @@ export async function listAllUserProfiles(accessToken?: string): Promise<{ profi
     }
   );
 
-  console.log('Using access token for authentication');
+  console.log('🔑 [SERVER] Cliente creado, verificando usuario...');
 
   // Verificar el usuario con el token
   const { data: { user }, error: userError } = await supabase.auth.getUser();
-  console.log('User in listAllUserProfiles:', user ? 'Found' : 'Not found');
+  console.log('👤 [SERVER] User status:', {
+    hasUser: !!user,
+    userEmail: user?.email,
+    userError: userError?.message
+  });
   
   if (userError || !user) {
-    console.log('User error:', userError);
-    return { profiles: null, error: 'No user authenticated' };
+    console.error('❌ [SERVER] User authentication failed:', userError);
+    return { profiles: null, error: `No user authenticated: ${userError?.message}` };
   }
+
+  console.log('🔑 [SERVER] Verificando rol del usuario...');
 
   // Verificar el rol del usuario autenticado en el servidor
   const { data: roleData, error: roleError } = await supabase.rpc('get_user_role');
-  console.log('Role data in listAllUserProfiles:', roleData);
+  console.log('📊 [SERVER] Role check result:', {
+    role: roleData,
+    hasError: !!roleError,
+    errorMessage: roleError?.message
+  });
   
-  if (roleError || roleData !== 'admin') {
-    console.log('Role error or not admin:', roleError, 'Role:', roleData);
-    return { profiles: null, error: 'User not authorized' };
+  if (roleError) {
+    console.error('❌ [SERVER] Role check failed:', roleError);
+    return { profiles: null, error: `Role verification failed: ${roleError.message}` };
+  }
+  
+  if (roleData !== 'admin') {
+    console.warn('⚠️ [SERVER] User is not admin:', roleData);
+    return { profiles: null, error: `User not authorized. Current role: ${roleData}` };
   }
 
   try {
+    console.log('📊 [SERVER] Obteniendo perfiles de la base de datos...');
+    
+    // Verificar si supabaseAdmin está configurado
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('❌ [SERVER] Missing SUPABASE_SERVICE_ROLE_KEY');
+      return { profiles: null, error: 'Missing admin configuration' };
+    }
+    
     const { data: profilesData, error: profilesError } = await supabaseAdmin.from('profiles').select('id, first_name, last_name, role, is_blocked, blocked_at, blocked_by, blocked_reason, authorized, authorized_at, authorized_by');
 
+    console.log('📊 [SERVER] Profiles query result:', {
+      profilesCount: profilesData?.length || 0,
+      hasError: !!profilesError,
+      errorMessage: profilesError?.message
+    });
+
     if (profilesError) {
-      console.error('Error fetching profiles from DB:', profilesError);
-      return { profiles: null, error: profilesError.message };
+      console.error('❌ [SERVER] Error fetching profiles from DB:', profilesError);
+      return { profiles: null, error: `Database error: ${profilesError.message}` };
     }
 
+    console.log('👥 [SERVER] Obteniendo usuarios de auth...');
     const { data: { users }, error: authUsersError } = await supabaseAdmin.auth.admin.listUsers();
 
+    console.log('👥 [SERVER] Auth users query result:', {
+      usersCount: users?.length || 0,
+      hasError: !!authUsersError,
+      errorMessage: authUsersError?.message
+    });
+
     if (authUsersError) {
-      console.error('Error fetching auth users:', authUsersError);
-      return { profiles: null, error: authUsersError.message };
+      console.error('❌ [SERVER] Error fetching auth users:', authUsersError);
+      return { profiles: null, error: `Auth error: ${authUsersError.message}` };
     }
 
+    console.log('🔄 [SERVER] Mapeando perfiles con emails...');
     const profilesWithEmails = profilesData.map(profile => {
       const authUser = users?.find(u => u.id === profile.id);
       const mappedProfile = {
@@ -125,23 +173,22 @@ export async function listAllUserProfiles(accessToken?: string): Promise<{ profi
       };
       
       // Log para debug
-      console.log('Profile mapeado:', {
+      console.log('🔄 [SERVER] Profile mapeado:', {
         id: mappedProfile.id.slice(0, 8),
         email: mappedProfile.email,
         role: mappedProfile.role,
         is_blocked: mappedProfile.is_blocked,
-        authorized: mappedProfile.authorized,
-        blocked_at: mappedProfile.blocked_at,
-        authorized_at: mappedProfile.authorized_at
+        authorized: mappedProfile.authorized
       });
       
       return mappedProfile;
     });
 
+    console.log('✅ [SERVER] Perfiles procesados exitosamente:', profilesWithEmails.length);
     return { profiles: profilesWithEmails as Profile[], error: null };
   } catch (err: unknown) {
-    console.error('Error in listAllUserProfiles server action:', err);
-    return { profiles: null, error: (err as Error).message };
+    console.error('❌ [SERVER] Error inesperado en listAllUserProfiles:', err);
+    return { profiles: null, error: `Unexpected server error: ${(err as Error).message}` };
   }
 }
 

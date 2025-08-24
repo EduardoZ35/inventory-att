@@ -45,11 +45,42 @@ export default function UserAdminPage() {
   const router = useRouter();
 
   const fetchUserRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase.rpc('get_user_role');
-      if (error) console.error('Error fetching user role:', error);
-      else setUserRole(data);
+    try {
+      console.log('🔄 Obteniendo rol del usuario...');
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      console.log('👤 User status:', {
+        hasUser: !!user,
+        userEmail: user?.email,
+        userError: userError?.message
+      });
+      
+      if (userError) {
+        console.error('❌ Error getting user:', userError);
+        return;
+      }
+      
+      if (user) {
+        console.log('🔑 Llamando a get_user_role RPC...');
+        const { data, error } = await supabase.rpc('get_user_role');
+        
+        console.log('📊 Resultado de get_user_role:', {
+          role: data,
+          hasError: !!error,
+          errorMessage: error?.message
+        });
+        
+        if (error) {
+          console.error('❌ Error fetching user role:', error);
+        } else {
+          console.log('✅ Rol obtenido:', data);
+          setUserRole(data);
+        }
+      } else {
+        console.warn('⚠️ No hay usuario autenticado');
+      }
+    } catch (err) {
+      console.error('❌ Error inesperado en fetchUserRole:', err);
     }
   };
 
@@ -57,24 +88,52 @@ export default function UserAdminPage() {
     setLoading(true);
     setError(null);
     
-    // Obtener el token de acceso actual
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    console.log('Session in loadProfiles:', session ? 'Found' : 'Not found');
-    
-    if (sessionError || !session?.access_token) {
-      console.log('No access token available:', sessionError);
-      setError('No se pudo obtener el token de acceso. Por favor, inicia sesión nuevamente.');
+    try {
+      console.log('🔄 Iniciando carga de perfiles...');
+      
+      // Obtener el token de acceso actual
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('📋 Session status:', session ? 'Found' : 'Not found');
+      console.log('📋 Session details:', {
+        hasUser: !!session?.user,
+        hasAccessToken: !!session?.access_token,
+        userEmail: session?.user?.email,
+        sessionError: sessionError?.message
+      });
+      
+      if (sessionError || !session?.access_token) {
+        const errorMsg = sessionError?.message || 'No access token available';
+        console.error('❌ Session error:', errorMsg);
+        setError(`Error de sesión: ${errorMsg}. Por favor, cierra sesión e inicia sesión nuevamente.`);
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔑 Llamando a listAllUserProfiles con token...');
+      const { profiles: fetchedProfiles, error: fetchError } = await listAllUserProfiles(session.access_token);
+      
+      console.log('📊 Resultado de listAllUserProfiles:', {
+        profilesCount: fetchedProfiles?.length || 0,
+        hasError: !!fetchError,
+        errorMessage: fetchError
+      });
+      
+      if (fetchError) {
+        console.error('❌ Error fetching profiles:', fetchError);
+        setError(`Error cargando usuarios: ${fetchError}`);
+      } else if (fetchedProfiles) {
+        console.log('✅ Perfiles cargados exitosamente:', fetchedProfiles.length);
+        setProfiles(fetchedProfiles);
+      } else {
+        console.warn('⚠️ No se recibieron perfiles');
+        setProfiles([]);
+      }
+    } catch (err) {
+      console.error('❌ Error inesperado en loadProfiles:', err);
+      setError(`Error inesperado: ${(err as Error).message}`);
+    } finally {
       setLoading(false);
-      return;
     }
-    
-    const { profiles: fetchedProfiles, error: fetchError } = await listAllUserProfiles(session.access_token);
-    if (fetchError) {
-      setError(fetchError);
-    } else if (fetchedProfiles) {
-      setProfiles(fetchedProfiles);
-    }
-    setLoading(false);
   };
 
   useEffect(() => {
