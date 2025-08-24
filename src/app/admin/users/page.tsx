@@ -18,6 +18,9 @@ interface Profile {
   authorized: boolean | null; // Estado de autorización (whitelist)
   authorized_at: string | null; // Fecha cuando fue autorizado
   authorized_by: string | null; // ID del admin que lo autorizó
+  auth_request_pending?: boolean | null; // Solicitud de autorización pendiente
+  auth_request_date?: string | null; // Fecha de solicitud
+  auth_request_status?: 'approved' | 'rejected' | 'pending' | null; // Estado de la solicitud
 }
 
 export default function UserAdminPage() {
@@ -109,10 +112,10 @@ export default function UserAdminPage() {
       console.log('📊 Cargando perfiles directamente desde el cliente...');
 
       // Usar el cliente normal de Supabase en lugar de server actions
-      // Obtener perfiles
+      // Obtener perfiles incluyendo campos de solicitud de autorización
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, role, is_blocked, blocked_at, blocked_by, blocked_reason, authorized, authorized_at, authorized_by');
+        .select('id, first_name, last_name, role, is_blocked, blocked_at, blocked_by, blocked_reason, authorized, authorized_at, authorized_by, auth_request_pending, auth_request_date, auth_request_status');
 
       if (profilesError) {
         console.error('❌ Error fetching profiles:', profilesError);
@@ -683,6 +686,99 @@ export default function UserAdminPage() {
     setShowInviteModal(false);
   };
 
+  // Función para aprobar solicitud de autorización
+  const handleApproveRequest = async (userId: string) => {
+    const user = profiles.find(p => p.id === userId);
+    if (!user) return;
+
+    const confirmApproval = confirm(`¿Aprobar la solicitud de autorización de ${user.email}?\n\nEl usuario obtendrá acceso inmediato al sistema.`);
+    if (!confirmApproval) return;
+
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        alert('❌ Error: No hay sesión activa');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          authorized: true,
+          authorized_at: new Date().toISOString(),
+          authorized_by: session.user.id,
+          auth_request_pending: false,
+          auth_request_status: 'approved',
+          auth_request_processed_at: new Date().toISOString(),
+          auth_request_processed_by: session.user.id,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+      if (error) {
+        console.error('❌ Error aprobando solicitud:', error);
+        alert(`❌ Error al aprobar solicitud: ${error.message}`);
+      } else {
+        alert(`✅ Solicitud aprobada exitosamente!\n\n${user.email} ahora puede acceder al sistema.`);
+        await loadProfiles(); // Recargar la lista
+      }
+    } catch (err) {
+      console.error('❌ Error inesperado aprobando solicitud:', err);
+      alert('❌ Error inesperado al aprobar la solicitud');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para rechazar solicitud de autorización
+  const handleRejectRequest = async (userId: string) => {
+    const user = profiles.find(p => p.id === userId);
+    if (!user) return;
+
+    const reason = prompt(`¿Rechazar la solicitud de autorización de ${user.email}?\n\nRazón del rechazo (opcional):`) || 'Sin razón especificada';
+    if (reason === null) return; // Usuario canceló
+
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        alert('❌ Error: No hay sesión activa');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          authorized: false,
+          is_blocked: true, // Bloquear usuario rechazado
+          blocked_at: new Date().toISOString(),
+          blocked_by: session.user.id,
+          blocked_reason: `Solicitud rechazada: ${reason}`,
+          auth_request_pending: false,
+          auth_request_status: 'rejected',
+          auth_request_processed_at: new Date().toISOString(),
+          auth_request_processed_by: session.user.id,
+          role: 'blocked',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+      if (error) {
+        console.error('❌ Error rechazando solicitud:', error);
+        alert(`❌ Error al rechazar solicitud: ${error.message}`);
+      } else {
+        alert(`✅ Solicitud rechazada exitosamente!\n\n${user.email} ha sido bloqueado.\nRazón: ${reason}`);
+        await loadProfiles(); // Recargar la lista
+      }
+    } catch (err) {
+      console.error('❌ Error inesperado rechazando solicitud:', err);
+      alert('❌ Error inesperado al rechazar la solicitud');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (userRole === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6 flex items-center justify-center">
@@ -748,7 +844,7 @@ export default function UserAdminPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -772,6 +868,19 @@ export default function UserAdminPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Usuarios Autorizados</p>
                 <p className="text-2xl font-bold text-gray-900">{profiles.filter(p => p.authorized === true).length}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Solicitudes Pendientes</p>
+                <p className="text-2xl font-bold text-gray-900">{profiles.filter(p => p.auth_request_pending === true).length}</p>
               </div>
             </div>
           </div>
@@ -874,8 +983,13 @@ export default function UserAdminPage() {
                 </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
-                        {/* Estado de autorización */}
-                        {profile.authorized === true ? (
+                        {/* Solicitud pendiente - más prioritario */}
+                        {profile.auth_request_pending === true ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 animate-pulse">
+                            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full mr-1.5"></span>
+                            Solicitud Pendiente
+                          </span>
+                        ) : profile.authorized === true ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-1.5"></span>
                             Autorizado
@@ -903,6 +1017,30 @@ export default function UserAdminPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
+                        {/* Botones de solicitud de autorización - solo mostrar si hay solicitud pendiente */}
+                        {profile.auth_request_pending === true && (
+                          <>
+                            <button 
+                              onClick={() => handleApproveRequest(profile.id)}
+                              className="text-green-600 hover:text-green-900 transition-colors duration-200 p-1 rounded-full hover:bg-green-50"
+                              title="Aprobar solicitud"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </button>
+                            <button 
+                              onClick={() => handleRejectRequest(profile.id)}
+                              className="text-red-600 hover:text-red-900 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                              title="Rechazar solicitud"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+                        
                         {/* Editar Perfil */}
                         <button 
                           onClick={() => handleEditUser(profile.id)}

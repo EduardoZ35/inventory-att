@@ -9,6 +9,9 @@ import { useSignOut } from '@/hooks/useSignOut';
 function UnauthorizedContent() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [requestingAuth, setRequestingAuth] = useState(false);
+  const [authRequested, setAuthRequested] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason');
@@ -18,6 +21,21 @@ function UnauthorizedContent() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
+        
+        if (user) {
+          // Obtener perfil del usuario para verificar estado de solicitud
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+            
+          if (!profileError && profile) {
+            setUserProfile(profile);
+            // Verificar si ya hay una solicitud pendiente
+            setAuthRequested(profile.auth_request_pending === true);
+          }
+        }
       } catch (error) {
         console.error('Error getting user:', error);
       } finally {
@@ -38,6 +56,39 @@ function UnauthorizedContent() {
       console.error('Error during sign out:', error);
       // Si falla, al menos redirige al auth
       router.push('/auth');
+    }
+  };
+
+  const handleRequestAuthorization = async () => {
+    if (!user || authRequested) return;
+    
+    setRequestingAuth(true);
+    try {
+      console.log('📝 Solicitando autorización para:', user.email);
+      
+      // Actualizar el perfil para marcar que hay una solicitud pendiente
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          auth_request_pending: true,
+          auth_request_date: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+        
+      if (error) {
+        console.error('❌ Error solicitando autorización:', error);
+        alert('Error al enviar solicitud. Por favor, inténtalo de nuevo.');
+      } else {
+        console.log('✅ Solicitud de autorización enviada exitosamente');
+        setAuthRequested(true);
+        alert('✅ Solicitud enviada exitosamente!\n\nTu solicitud de autorización ha sido enviada a los administradores. Recibirás una respuesta pronto.');
+      }
+    } catch (err) {
+      console.error('❌ Error inesperado:', err);
+      alert('Error inesperado. Por favor, inténtalo de nuevo.');
+    } finally {
+      setRequestingAuth(false);
     }
   };
 
@@ -134,6 +185,42 @@ function UnauthorizedContent() {
 
             {/* Botones de acción */}
             <div className="space-y-3">
+              {/* Botón de solicitar autorización - solo mostrar si no está bloqueado y no ha solicitado ya */}
+              {reason !== 'blocked' && user && (
+                <button
+                  onClick={handleRequestAuthorization}
+                  disabled={requestingAuth || authRequested}
+                  className={`w-full font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 ${
+                    authRequested 
+                      ? 'bg-green-100 text-green-800 border border-green-300 cursor-not-allowed'
+                      : requestingAuth
+                      ? 'bg-yellow-500 text-white cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  {requestingAuth ? (
+                    <>
+                      <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Enviando solicitud...</span>
+                    </>
+                  ) : authRequested ? (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Solicitud Enviada</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <span>Solicitar Autorización</span>
+                    </>
+                  )}
+                </button>
+              )}
+
               <button
                 onClick={handleSignOut}
                 className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"

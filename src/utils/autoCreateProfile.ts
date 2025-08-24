@@ -84,8 +84,8 @@ export async function autoCreateOrUpdateProfile(user: any): Promise<void> {
           last_name: googleData.family_name,
           role: 'viewer', // Rol por defecto
           is_blocked: false,
-          authorized: true, // Auto-autorizar usuarios de Google por ahora
-          authorized_at: new Date().toISOString(),
+          authorized: false, // NO auto-autorizar - requiere solicitud
+          authorized_at: null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
