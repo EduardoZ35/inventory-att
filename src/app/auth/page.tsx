@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getBaseUrl } from '@/utils/getBaseUrl';
+import { getAuthRedirectUrl } from '@/utils/redirectHandler';
 
 // Componente que usa searchParams envuelto en Suspense
 function AuthContent() {
@@ -43,15 +43,14 @@ function AuthContent() {
     setMessage(null);
 
     try {
-      // Opciones adicionales para forzar la selección de cuenta de Google
-      // Usar la función getBaseUrl para obtener la URL base correcta
-      const baseUrl = getBaseUrl();
-      console.log('Using base URL for auth redirect:', baseUrl);
+      // Obtener la URL de redirección correcta para el entorno actual
+      const redirectUrl = getAuthRedirectUrl();
+      console.log('🔄 Starting Google OAuth with redirect URL:', redirectUrl);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${baseUrl}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             // Forzar a Google a mostrar selector de cuenta
             prompt: 'select_account',

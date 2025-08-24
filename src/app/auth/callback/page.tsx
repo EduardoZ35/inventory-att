@@ -3,26 +3,35 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
-import { getBaseUrl } from '@/utils/getBaseUrl';
+import { redirectToDashboard, redirectToAuth } from '@/utils/redirectHandler';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      // Obtener la URL base para asegurar redirecciones correctas
-      const baseUrl = getBaseUrl();
-      console.log('Auth callback using base URL:', baseUrl);
+      console.log('🔄 Processing auth callback...');
       
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        // Si hay una sesión, redirige a la página de dashboard
-        // Usar URL absoluta para evitar problemas de redirección
-        window.location.href = `${baseUrl}/dashboard`;
-      } else {
-        // Si no hay sesión (ej. error en la autenticación), redirige al login
-        window.location.href = `${baseUrl}/auth`;
+      try {
+        // Procesar el callback de autenticación de Supabase
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Auth callback error:', error);
+          redirectToAuth();
+          return;
+        }
+        
+        if (data.session) {
+          console.log('✅ Auth successful, redirecting to dashboard');
+          redirectToDashboard();
+        } else {
+          console.log('❌ No session found, redirecting to auth');
+          redirectToAuth();
+        }
+      } catch (err) {
+        console.error('❌ Unexpected error in auth callback:', err);
+        redirectToAuth();
       }
     };
 
@@ -31,11 +40,12 @@ export default function AuthCallbackPage() {
 
     // También podemos usar un listener para cambios de estado de autenticación si es necesario
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      const baseUrl = getBaseUrl();
       if (session) {
-        window.location.href = `${baseUrl}/dashboard`;
+        console.log('🔄 Auth state changed: session found, redirecting to dashboard');
+        redirectToDashboard();
       } else {
-        window.location.href = `${baseUrl}/auth`;
+        console.log('🔄 Auth state changed: no session, redirecting to auth');
+        redirectToAuth();
       }
     });
 
