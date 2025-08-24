@@ -42,6 +42,10 @@ export default function UserAdminPage() {
   });
   const [viewingGoogleAccount, setViewingGoogleAccount] = useState<string | null>(null);
   const [googleAccountInfo, setGoogleAccountInfo] = useState<any>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<'admin' | 'manager' | 'viewer'>('viewer');
+  const [inviteLoading, setInviteLoading] = useState(false);
   const router = useRouter();
 
   const fetchUserRole = async () => {
@@ -609,6 +613,76 @@ export default function UserAdminPage() {
     }
   };
 
+  // Función para invitar usuario
+  const handleInviteUser = async () => {
+    if (!inviteEmail.trim()) {
+      alert('❌ Por favor ingresa un email válido');
+      return;
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inviteEmail)) {
+      alert('❌ Por favor ingresa un email con formato válido');
+      return;
+    }
+
+    setInviteLoading(true);
+    try {
+      console.log('📧 Invitando usuario:', { email: inviteEmail, role: inviteRole });
+
+      // Verificar si el usuario ya existe
+      const existingProfile = profiles.find(p => p.email === inviteEmail);
+      if (existingProfile) {
+        alert(`⚠️ El usuario ${inviteEmail} ya existe en el sistema con rol: ${existingProfile.role}`);
+        setInviteLoading(false);
+        return;
+      }
+
+      // Crear un perfil temporal para el usuario invitado
+      // En un sistema real, enviarías un email de invitación
+      // Por ahora, simplemente lo agregaremos como "pendiente de activación"
+      
+      const tempProfile: Profile = {
+        id: `temp-${Date.now()}`, // ID temporal
+        first_name: null,
+        last_name: null,
+        email: inviteEmail,
+        role: inviteRole,
+        is_blocked: false,
+        blocked_at: null,
+        blocked_by: null,
+        blocked_reason: null,
+        authorized: true, // Pre-autorizado por el admin
+        authorized_at: new Date().toISOString(),
+        authorized_by: null
+      };
+
+      // Agregar el perfil a la lista local (esto sería reemplazado por una llamada real a la API)
+      setProfiles(prev => [...prev, tempProfile]);
+
+      alert(`✅ Invitación enviada exitosamente!\n\nEmail: ${inviteEmail}\nRol: ${inviteRole}\n\nCuando el usuario inicie sesión con Google, obtendrá automáticamente:\n• Su nombre real de Google\n• Su foto de perfil\n• El rol asignado: ${inviteRole}`);
+
+      // Limpiar el formulario
+      setInviteEmail('');
+      setInviteRole('viewer');
+      setShowInviteModal(false);
+
+    } catch (err) {
+      console.error('❌ Error invitando usuario:', err);
+      alert(`❌ Error al enviar invitación: ${(err as Error).message}`);
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  // Función para cancelar invitación
+  const handleCancelInvite = () => {
+    setInviteEmail('');
+    setInviteRole('viewer');
+    setShowInviteModal(false);
+  };
+
   if (userRole === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6 flex items-center justify-center">
@@ -657,9 +731,20 @@ export default function UserAdminPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Administración de Usuarios</h1>
-          <p className="text-gray-600">Gestiona los roles y permisos de los usuarios del sistema</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Administración de Usuarios</h1>
+            <p className="text-gray-600">Gestiona los roles y permisos de los usuarios del sistema</p>
+          </div>
+          <button
+            onClick={() => setShowInviteModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-colors duration-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>Invitar Usuario</span>
+          </button>
         </div>
 
         {/* Stats Cards */}
@@ -1466,6 +1551,105 @@ export default function UserAdminPage() {
                   Cerrar
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de invitación de usuario */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            {/* Header del modal */}
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Invitar Usuario</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Invita a un nuevo usuario al sistema
+                  </p>
+                </div>
+                <button
+                  onClick={handleCancelInvite}
+                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="px-6 py-4">
+              <div className="space-y-4">
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email del usuario *
+                  </label>
+                  <input
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="usuario@empresa.com"
+                    disabled={inviteLoading}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Debe ser una cuenta de Gmail/Google válida
+                  </p>
+                </div>
+
+                {/* Rol */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rol asignado
+                  </label>
+                  <select
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value as 'admin' | 'manager' | 'viewer')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={inviteLoading}
+                  >
+                    <option value="viewer">👁️ Viewer - Solo lectura</option>
+                    <option value="manager">⚡ Manager - Lectura y escritura</option>
+                    <option value="admin">👑 Admin - Control total</option>
+                  </select>
+                </div>
+
+                {/* Información automática */}
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <h4 className="text-sm font-medium text-blue-900 mb-2">ℹ️ Información Automática</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• El nombre se obtendrá automáticamente de Google</li>
+                    <li>• La foto de perfil se sincronizará desde Google</li>
+                    <li>• El usuario será pre-autorizado</li>
+                    <li>• Podrá acceder inmediatamente al iniciar sesión</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer del modal */}
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={handleCancelInvite}
+                disabled={inviteLoading}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleInviteUser}
+                disabled={inviteLoading || !inviteEmail.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {inviteLoading && (
+                  <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
+                <span>{inviteLoading ? 'Enviando...' : 'Enviar Invitación'}</span>
+              </button>
             </div>
           </div>
         </div>

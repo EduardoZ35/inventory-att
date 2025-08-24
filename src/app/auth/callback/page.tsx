@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { redirectToDashboard, redirectToAuth } from '@/utils/redirectHandler';
+import { autoCreateOrUpdateProfile } from '@/utils/autoCreateProfile';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -23,7 +24,12 @@ export default function AuthCallbackPage() {
         }
         
         if (data.session) {
-          console.log('✅ Auth successful, redirecting to dashboard');
+          console.log('✅ Auth successful, auto-creating/updating profile...');
+          
+          // Auto-crear o actualizar perfil con datos de Google
+          await autoCreateOrUpdateProfile(data.session.user);
+          
+          console.log('✅ Profile processed, redirecting to dashboard');
           redirectToDashboard();
         } else {
           console.log('❌ No session found, redirecting to auth');
@@ -39,11 +45,12 @@ export default function AuthCallbackPage() {
     handleAuthCallback();
 
     // También podemos usar un listener para cambios de estado de autenticación si es necesario
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        console.log('🔄 Auth state changed: session found, redirecting to dashboard');
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session && event === 'SIGNED_IN') {
+        console.log('🔄 Auth state changed: session found, processing profile...');
+        await autoCreateOrUpdateProfile(session.user);
         redirectToDashboard();
-      } else {
+      } else if (!session) {
         console.log('🔄 Auth state changed: no session, redirecting to auth');
         redirectToAuth();
       }
