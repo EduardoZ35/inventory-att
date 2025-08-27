@@ -137,11 +137,12 @@ export default function InvoicesClient() {
   };
 
       const filteredInvoices = invoices.filter(invoice => {
-      const matchesSearch = 
+      // Búsqueda por múltiples campos
+      const matchesSearch =
         invoice.id.toString().includes(searchTerm) ||
         (invoice.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-        (invoice.provider?.organization?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-        (invoice.provider?.dni?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+        (invoice.provider?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+        (invoice.provider?.rut?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
         (invoice.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
 
     // Para facturas de compra, no hay estados como pending/paid, así que mostramos todas
@@ -357,10 +358,10 @@ export default function InvoicesClient() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-gray-300">
-                        {invoice.provider?.organization || 'Sin proveedor'}
+                        {invoice.provider?.name || 'Sin proveedor'}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.provider?.dni || '-'}
+                        {invoice.provider?.rut || '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

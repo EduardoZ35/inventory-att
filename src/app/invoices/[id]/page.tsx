@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import InvoiceDetailClient from './InvoiceDetailClient';
+import InvoiceDetailClient from '@/components/invoices/InvoiceDetailClient';
 
 export default function InvoiceDetailPage({ params }: { params: { id: string } }) {
   return (

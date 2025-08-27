@@ -52,13 +52,15 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
         console.log('👤 LayoutWrapper: Usuario encontrado:', user.email);
 
-        // Actualizar el store con el usuario
-        setUser(user);
+        // Actualizar el store con el usuario (asegurándonos de que email existe)
+        if (user.email) {
+          setUser(user as any);
+        }
 
         // Verificar autorización en la base de datos
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('authorized, is_blocked, role, first_name, last_name')
+          .select('*')
           .eq('id', user.id)
           .single();
 
@@ -93,7 +95,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
           setProfile(null);
         } else {
           // Actualizar el store con el perfil
-          setProfile(profile);
+          setProfile(profile as any);
         }
 
         if (!profile?.authorized) {
