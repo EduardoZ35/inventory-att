@@ -45,3 +45,4 @@ WHERE au.id = auth.uid();
 -- - Se usa en las páginas de administración para verificar permisos
 -- - Requiere que el usuario esté autenticado (auth.uid() no sea NULL)
 -- - Devuelve NULL si no hay usuario autenticado o no tiene perfil
+

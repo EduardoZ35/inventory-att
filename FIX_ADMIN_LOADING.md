@@ -64,3 +64,4 @@ Una vez ejecutado el script, la página de administración debería:
 ---
 
 **¡Ejecuta el script y la página debería funcionar inmediatamente! 🚀**
+

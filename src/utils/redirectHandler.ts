@@ -58,3 +58,4 @@ export function redirectToAuth(): void {
   // Usar replace para evitar problemas con el botón atrás
   window.location.replace(authUrl);
 }
+

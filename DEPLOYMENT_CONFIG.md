@@ -77,3 +77,4 @@ El problema NO se puede resolver solo con código. Las URLs de redirección debe
 - Supabase Dashboard (lado de Supabase)
 
 Sin esta configuración, Google siempre redirigirá a localhost o dará error.
+

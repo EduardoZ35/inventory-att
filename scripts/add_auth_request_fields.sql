@@ -54,3 +54,6 @@ ORDER BY p.auth_request_date DESC;
 -- - auth_request_processed_at: fecha cuando el admin procesó la solicitud
 -- - auth_request_processed_by: ID del admin que procesó la solicitud
 -- - auth_request_status: estado de la solicitud (approved, rejected, pending)
+
+
+

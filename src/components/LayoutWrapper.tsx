@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuthStore } from '@/stores/authStore';
 import Sidebar from './Sidebar';
 import SessionTimeoutModal from './SessionTimeoutModal';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { useSignOut } from '@/hooks/useSignOut';
+import { NotificationContainer } from './common/NotificationContainer';
 
 interface LayoutWrapperProps {
   children: React.ReactNode;
@@ -16,6 +18,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const [showTimeoutModal, setShowTimeoutModal] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const { signOut } = useSignOut();
+  const { setUser, setProfile, checkAuth } = useAuthStore();
   const router = useRouter();
 
   // Verificación adicional de autorización en el cliente
@@ -41,16 +44,21 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
         
         if (!user) {
           console.log('❌ LayoutWrapper: No hay usuario');
+          setUser(null);
+          setProfile(null);
           setIsCheckingAuth(false);
           return;
         }
 
         console.log('👤 LayoutWrapper: Usuario encontrado:', user.email);
 
+        // Actualizar el store con el usuario
+        setUser(user);
+
         // Verificar autorización en la base de datos
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('authorized, is_blocked, role')
+          .select('authorized, is_blocked, role, first_name, last_name')
           .eq('id', user.id)
           .single();
 
@@ -82,6 +90,10 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
         if (error || !profile) {
           console.log('❌ LayoutWrapper: Error obteniendo perfil - PERO NO REDIRIGIENDO');
+          setProfile(null);
+        } else {
+          // Actualizar el store con el perfil
+          setProfile(profile);
         }
 
         if (!profile?.authorized) {
@@ -185,6 +197,9 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
         onExtendSession={handleExtendSession}
         onLogout={handleForceLogout}
       />
+      
+      {/* Container de notificaciones - deshabilitado temporalmente */}
+      {/* <NotificationContainer /> */}
     </>
   );
 }

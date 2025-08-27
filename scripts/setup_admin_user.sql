@@ -78,3 +78,6 @@ SELECT
 FROM profiles p
 JOIN auth.users au ON p.id = au.id
 ORDER BY p.role DESC, au.email;
+
+
+

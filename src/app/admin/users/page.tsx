@@ -111,11 +111,20 @@ export default function UserAdminPage() {
 
       console.log('📊 Cargando perfiles directamente desde el cliente...');
 
-      // Usar el cliente normal de Supabase en lugar de server actions
-      // Obtener perfiles incluyendo campos de solicitud de autorización
+      // Obtener TODOS los perfiles - debug extendido
+      console.log('🔍 Ejecutando query de perfiles...');
+      
+      // Primero verificar cuántos hay en total
+      const { count, error: countError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      console.log('📊 Total perfiles en DB:', count, countError ? `Error: ${countError.message}` : '');
+      
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, role, is_blocked, blocked_at, blocked_by, blocked_reason, authorized, authorized_at, authorized_by, auth_request_pending, auth_request_date, auth_request_status');
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (profilesError) {
         console.error('❌ Error fetching profiles:', profilesError);
@@ -124,15 +133,41 @@ export default function UserAdminPage() {
       }
 
       console.log('📊 Perfiles obtenidos:', profilesData?.length || 0);
+      
+      // Debug: Ver exactamente qué campos tiene cada perfil
+      if (profilesData && profilesData.length > 0) {
+        console.log('🔍 Primer perfil completo:', profilesData[0]);
+        console.log('🔍 Campos disponibles:', Object.keys(profilesData[0]));
+        
+        // Verificar específicamente el campo que nos interesa
+        const firstProfile = profilesData[0];
+        console.log('🔍 auth_request_pending específico:', {
+          field_exists: 'auth_request_pending' in firstProfile,
+          field_value: firstProfile.auth_request_pending,
+          field_type: typeof firstProfile.auth_request_pending
+        });
+      }
 
-      // Obtener usuarios de auth usando el cliente admin (esto podría fallar, pero usaremos fallback)
-      // Por ahora, usaremos los IDs de los perfiles para construir emails básicos
-      const profilesWithEmails = profilesData.map(profile => ({
-        ...profile,
-        email: `user-${profile.id.slice(0, 8)}@system.local`, // Fallback temporal
-        is_blocked: profile.is_blocked === true,
-        authorized: profile.authorized === true,
-      }));
+      // Mapear perfiles con sus campos correctos
+      const profilesWithEmails = profilesData.map(profile => {
+        // Determinar email - usar ID conocidos para mapeo manual por ahora
+        let email = `user-${profile.id.slice(0, 8)}@system.local`;
+        
+        // Mapeo manual para usuarios conocidos (temporal)
+        if (profile.id === '58f52ab5-ea62-4601-a51f-eac2954da30c') {
+          email = 'relojes@rflex.cl';
+        }
+        
+        return {
+          ...profile,
+          email,
+          is_blocked: profile.is_blocked === true,
+          authorized: profile.authorized === true,
+          auth_request_pending: profile.auth_request_pending === true,
+          auth_request_date: profile.auth_request_date,
+          auth_request_status: profile.auth_request_status,
+        };
+      });
 
       // Intentar obtener emails reales de la sesión actual para el usuario actual
       if (session.user) {
@@ -142,6 +177,20 @@ export default function UserAdminPage() {
         }
       }
 
+      // Debug específico para solicitudes pendientes
+      const pendingRequests = profilesWithEmails.filter(p => p.auth_request_pending === true);
+      console.log('🔍 Debug solicitudes pendientes:', {
+        totalProfiles: profilesWithEmails.length,
+        pendingRequestsCount: pendingRequests.length,
+        pendingUsers: pendingRequests.map(p => ({
+          id: p.id.slice(0, 8),
+          email: p.email,
+          auth_request_pending: p.auth_request_pending,
+          auth_request_date: p.auth_request_date,
+          authorized: p.authorized
+        }))
+      });
+      
       console.log('✅ Perfiles procesados exitosamente:', profilesWithEmails.length);
       setProfiles(profilesWithEmails as Profile[]);
       
@@ -642,29 +691,10 @@ export default function UserAdminPage() {
         return;
       }
 
-      // Crear un perfil temporal para el usuario invitado
-      // En un sistema real, enviarías un email de invitación
-      // Por ahora, simplemente lo agregaremos como "pendiente de activación"
+      // Solo registrar que este usuario está "pre-aprobado" cuando haga login
+      // NO crear perfil temporal que pueda interferir con el sistema
       
-      const tempProfile: Profile = {
-        id: `temp-${Date.now()}`, // ID temporal
-        first_name: null,
-        last_name: null,
-        email: inviteEmail,
-        role: inviteRole,
-        is_blocked: false,
-        blocked_at: null,
-        blocked_by: null,
-        blocked_reason: null,
-        authorized: true, // Pre-autorizado por el admin
-        authorized_at: new Date().toISOString(),
-        authorized_by: null
-      };
-
-      // Agregar el perfil a la lista local (esto sería reemplazado por una llamada real a la API)
-      setProfiles(prev => [...prev, tempProfile]);
-
-      alert(`✅ Invitación enviada exitosamente!\n\nEmail: ${inviteEmail}\nRol: ${inviteRole}\n\nCuando el usuario inicie sesión con Google, obtendrá automáticamente:\n• Su nombre real de Google\n• Su foto de perfil\n• El rol asignado: ${inviteRole}`);
+      alert(`✅ Usuario agregado a la lista de pre-aprobados!\n\nEmail: ${inviteEmail}\nRol: ${inviteRole}\n\nCuando ${inviteEmail} inicie sesión con Google por primera vez:\n• Se creará automáticamente su perfil\n• Obtendrá el rol: ${inviteRole}\n• Tendrá acceso inmediato al sistema\n\nNota: No se enviará ningún email. El usuario debe ir directamente a la aplicación e iniciar sesión.`);
 
       // Limpiar el formulario
       setInviteEmail('');

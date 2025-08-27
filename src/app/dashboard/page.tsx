@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import type { User } from '@supabase/supabase-js';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; } | null>(null);
 
@@ -94,16 +96,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Tarjetas de estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {/* Tarjeta 1: Total de Productos */}
           <div className="card-modern p-6 group">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-700 mb-1">Total de Productos</h2>
-                <p className="text-3xl font-bold text-blue-600">1,234</p>
+                <h2 className="text-lg font-semibold text-gray-700 mb-1">Productos</h2>
+                <p className="text-3xl font-bold text-blue-600">127</p>
                 <div className="flex items-center mt-2">
-                  <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full">+15%</span>
-                  <span className="text-sm text-gray-500 ml-2">desde el mes pasado</span>
+                  <span className="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Total</span>
                 </div>
               </div>
               <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors duration-200">
@@ -114,39 +115,73 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Tarjeta 2: Instancias en Stock */}
+          {/* Tarjeta 2: Bodegas */}
           <div className="card-modern p-6 group">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-700 mb-1">Instancias en Stock</h2>
-                <p className="text-3xl font-bold text-emerald-600">8,765</p>
+                <h2 className="text-lg font-semibold text-gray-700 mb-1">Bodegas</h2>
+                <p className="text-3xl font-bold text-emerald-600">5</p>
                 <div className="flex items-center mt-2">
-                  <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full">+8%</span>
-                  <span className="text-sm text-gray-500 ml-2">desde la semana pasada</span>
+                  <span className="text-sm text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full">Activas</span>
                 </div>
               </div>
               <div className="p-3 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors duration-200">
                 <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
             </div>
           </div>
 
-          {/* Tarjeta 3: Productos por Agotarse */}
+          {/* Tarjeta 3: Facturas de Compra */}
           <div className="card-modern p-6 group">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-700 mb-1">Productos por Agotarse</h2>
-                <p className="text-3xl font-bold text-orange-600">45</p>
+                <h2 className="text-lg font-semibold text-gray-700 mb-1">Facturas Compra</h2>
+                <p className="text-3xl font-bold text-purple-600">23</p>
                 <div className="flex items-center mt-2">
-                  <span className="text-sm text-orange-600 bg-orange-100 px-2 py-1 rounded-full">⚠️</span>
-                  <span className="text-sm text-gray-500 ml-2">Acción requerida</span>
+                  <span className="text-sm text-purple-600 bg-purple-100 px-2 py-1 rounded-full">Este mes</span>
+                </div>
+              </div>
+              <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors duration-200">
+                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Tarjeta 4: Proveedores */}
+          <div className="card-modern p-6 group">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-700 mb-1">Proveedores</h2>
+                <p className="text-3xl font-bold text-orange-600">8</p>
+                <div className="flex items-center mt-2">
+                  <span className="text-sm text-orange-600 bg-orange-100 px-2 py-1 rounded-full">Activos</span>
                 </div>
               </div>
               <div className="p-3 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors duration-200">
                 <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Tarjeta 5: Clientes */}
+          <div className="card-modern p-6 group">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-700 mb-1">Clientes</h2>
+                <p className="text-3xl font-bold text-pink-600">42</p>
+                <div className="flex items-center mt-2">
+                  <span className="text-sm text-pink-600 bg-pink-100 px-2 py-1 rounded-full">Registrados</span>
+                </div>
+              </div>
+              <div className="p-3 bg-pink-100 rounded-xl group-hover:bg-pink-200 transition-colors duration-200">
+                <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                 </svg>
               </div>
             </div>
@@ -159,30 +194,60 @@ export default function DashboardPage() {
           <div className="lg:col-span-2">
             <div className="card-modern p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button className="btn-primary p-4 text-center rounded-xl">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <button 
+                  onClick={() => router.push('/products/add')}
+                  className="btn-primary p-4 text-center rounded-xl hover:transform hover:scale-105 transition-all duration-200"
+                >
                   <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   <span className="text-sm font-medium">Agregar Producto</span>
                 </button>
-                <button className="btn-secondary p-4 text-center rounded-xl">
+                <button 
+                  onClick={() => router.push('/warehouses/add')}
+                  className="btn-secondary p-4 text-center rounded-xl hover:transform hover:scale-105 transition-all duration-200"
+                >
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <span className="text-sm font-medium">Nueva Bodega</span>
+                </button>
+                <button 
+                  onClick={() => router.push('/invoices/add')}
+                  className="btn-secondary p-4 text-center rounded-xl hover:transform hover:scale-105 transition-all duration-200"
+                >
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="text-sm font-medium">Factura Compra</span>
+                </button>
+                <button 
+                  onClick={() => router.push('/products')}
+                  className="btn-secondary p-4 text-center rounded-xl hover:transform hover:scale-105 transition-all duration-200"
+                >
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span className="text-sm font-medium">Ver Inventario</span>
+                </button>
+                <button 
+                  onClick={() => router.push('/customers/add')}
+                  className="btn-secondary p-4 text-center rounded-xl hover:transform hover:scale-105 transition-all duration-200"
+                >
                   <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                   <span className="text-sm font-medium">Nuevo Cliente</span>
                 </button>
-                <button className="btn-secondary p-4 text-center rounded-xl">
+                <button 
+                  onClick={() => router.push('/providers')}
+                  className="btn-secondary p-4 text-center rounded-xl hover:transform hover:scale-105 transition-all duration-200"
+                >
                   <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <span className="text-sm font-medium">Nueva Factura</span>
-                </button>
-                <button className="btn-secondary p-4 text-center rounded-xl">
-                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  <span className="text-sm font-medium">Ver Reportes</span>
+                  <span className="text-sm font-medium">Ver Proveedores</span>
                 </button>
               </div>
             </div>
@@ -195,45 +260,120 @@ export default function DashboardPage() {
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Producto agregado</p>
-                  <p className="text-xs text-gray-500">Hace 2 minutos</p>
+                  <p className="text-sm font-medium text-gray-900">Producto actualizado</p>
+                  <p className="text-xs text-gray-500">Hace 5 minutos</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Cliente registrado</p>
-                  <p className="text-xs text-gray-500">Hace 15 minutos</p>
+                  <p className="text-sm font-medium text-gray-900">Factura de compra registrada</p>
+                  <p className="text-xs text-gray-500">Hace 20 minutos</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">Nueva bodega agregada</p>
+                  <p className="text-xs text-gray-500">Hace 45 minutos</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Stock bajo detectado</p>
-                  <p className="text-xs text-gray-500">Hace 1 hora</p>
+                  <p className="text-sm font-medium text-gray-900">Proveedor actualizado</p>
+                  <p className="text-xs text-gray-500">Hace 2 horas</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">Cliente registrado</p>
+                  <p className="text-xs text-gray-500">Hace 3 horas</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Gráfico placeholder modernizado */}
-        <div className="card-modern p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Estadísticas de Ventas</h2>
-            <div className="flex space-x-2">
-              <button className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200">7 días</button>
-              <button className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-200">30 días</button>
-              <button className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-200">90 días</button>
+        {/* Resumen de Inventario */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Productos por categoría */}
+          <div className="card-modern p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Productos por Categoría</h2>
+              <button 
+                onClick={() => router.push('/product-types')}
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Ver todas →
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">Electrónicos</span>
+                </div>
+                <span className="text-sm text-gray-500">45 productos</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">Oficina</span>
+                </div>
+                <span className="text-sm text-gray-500">32 productos</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">Herramientas</span>
+                </div>
+                <span className="text-sm text-gray-500">28 productos</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">Materiales</span>
+                </div>
+                <span className="text-sm text-gray-500">22 productos</span>
+              </div>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 text-center">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Gráfico de Ventas</h3>
-            <p className="text-gray-500 mb-4">Los datos del gráfico se mostrarán aquí una vez que se integre con el sistema de analytics</p>
-            <button className="btn-primary">Configurar Analytics</button>
+
+          {/* Gastos en compras */}
+          <div className="card-modern p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Gastos en Compras</h2>
+              <button 
+                onClick={() => router.push('/invoices')}
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Ver facturas →
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-gray-900 mb-1">$2.847.500</p>
+                <p className="text-sm text-gray-500">Total este mes</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="text-center">
+                  <p className="text-lg font-semibold text-emerald-600">$2.390.756</p>
+                  <p className="text-xs text-gray-500">Neto</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-semibold text-orange-600">$456.744</p>
+                  <p className="text-xs text-gray-500">IVA</p>
+                </div>
+              </div>
+              <div className="pt-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">23 facturas registradas</span>
+                  <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">+12%</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
