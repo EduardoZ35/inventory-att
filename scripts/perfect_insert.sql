@@ -35,3 +35,4 @@ SELECT
     '🎉 ¡LISTO! Ahora ve a tu app web /invoices - debería funcionar perfectamente' as mensaje_final
 WHERE (SELECT COUNT(*) FROM public.invoices) > 0;
 
+

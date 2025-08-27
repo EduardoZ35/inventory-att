@@ -107,3 +107,4 @@ SELECT
     END as estado_final
 FROM public.invoices;
 
+

@@ -29,3 +29,4 @@ SELECT 'ACCESO DIRECTO A PROVIDERS:' as info;
 SELECT COUNT(*) as total_providers, 'providers accesibles' as descripcion
 FROM public.providers;
 
+

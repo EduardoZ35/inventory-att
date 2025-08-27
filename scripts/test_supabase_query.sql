@@ -36,3 +36,4 @@ ORDER BY ordinal_position;
 SELECT 'TODOS LOS PROVIDERS:' as info;
 SELECT id, name, rut FROM public.providers ORDER BY id;
 
+

@@ -49,3 +49,4 @@ SELECT '🎉 ¡PERFECTO! Tu sistema de facturas está listo.' as mensaje;
 SELECT '👉 Ve a tu aplicación web: http://localhost:3000/invoices' as siguiente_paso;
 SELECT '📋 Deberías ver tu factura listada y poder crear más.' as funcionalidad;
 
+

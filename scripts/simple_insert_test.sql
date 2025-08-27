@@ -15,3 +15,4 @@ SELECT * FROM public.invoices WHERE invoice_number = 'SIMPLE-TEST';
 
 COMMIT;
 
+

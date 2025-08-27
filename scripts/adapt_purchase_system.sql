@@ -147,3 +147,4 @@ JOIN public.providers p ON pi.provider_id = p.id;
 
 SELECT '✅ Sistema adaptado - la tabla invoices se eliminó y se creó purchase_invoices' as resultado_final;
 
+

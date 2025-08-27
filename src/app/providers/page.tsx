@@ -6,3 +6,4 @@ export default function ProvidersPage() {
   return <ProvidersClient />;
 }
 
+

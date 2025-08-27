@@ -168,3 +168,4 @@ ORDER BY ordinal_position;
 
 SELECT 'ACTUALIZACIÓN COMPLETADA' as resultado;
 
+

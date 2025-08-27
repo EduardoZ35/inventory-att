@@ -100,3 +100,4 @@ ORDER BY ordinal_position;
 SELECT 'WAREHOUSES EXISTENTES:' as info;
 SELECT COUNT(*) as total_warehouses FROM public.warehouses;
 
+

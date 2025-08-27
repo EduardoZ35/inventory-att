@@ -104,3 +104,4 @@ SELECT 'Resultado final:' as info;
 SELECT COUNT(*) as total_registros FROM public.invoices;
 SELECT * FROM public.invoices ORDER BY id DESC LIMIT 1;
 
+

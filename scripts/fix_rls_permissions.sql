@@ -62,3 +62,4 @@ FROM public.purchase_invoices pi
 LEFT JOIN public.providers p ON pi.provider_id = p.id
 LIMIT 3;
 
+

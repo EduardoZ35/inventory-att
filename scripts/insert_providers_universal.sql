@@ -142,3 +142,4 @@ SELECT * FROM public.providers ORDER BY id;
 SELECT 'TOTAL PROVEEDORES:' as info;
 SELECT COUNT(*) as total FROM public.providers;
 
+

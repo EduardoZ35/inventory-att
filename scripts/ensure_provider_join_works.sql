@@ -42,3 +42,4 @@ FROM public.purchase_invoices pi
 JOIN public.providers p ON pi.provider_id = p.id
 ORDER BY pi.id;
 
+

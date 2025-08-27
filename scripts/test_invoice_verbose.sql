@@ -112,3 +112,4 @@ EXCEPTION WHEN OTHERS THEN
     RAISE WARNING 'Error esperado que nos dice qué falta: %', SQLERRM;
 END $$;
 
+

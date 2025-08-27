@@ -16,3 +16,4 @@ ORDER BY ordinal_position;
 SELECT 'CONTENIDO ACTUAL DE PROVIDERS:' as info;
 SELECT * FROM public.providers LIMIT 5;
 
+

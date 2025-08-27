@@ -77,3 +77,4 @@ SELECT 'TEST INSERT:' as info;
 -- Este es solo un test, no insertará realmente
 SELECT 'Políticas configuradas para permitir INSERT' as resultado;
 
+

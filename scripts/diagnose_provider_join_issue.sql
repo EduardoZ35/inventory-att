@@ -51,3 +51,4 @@ WHERE table_schema = 'public'
   AND table_name = 'providers' 
   AND column_name = 'id';
 
+

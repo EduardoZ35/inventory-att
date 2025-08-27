@@ -591,3 +591,4 @@ export const getRegionsByCountry = (country: 'Chile' | 'Peru'): Region[] => {
   return chilePeruRegionsCommunes.filter(region => region.country === country);
 };
 
+

@@ -45,3 +45,4 @@ WHERE table_schema = 'public'
 AND table_name = 'providers'
 ORDER BY ordinal_position;
 
+

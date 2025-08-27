@@ -4,3 +4,4 @@ export default function ProductTypesPage() {
   return <ProductTypesClient />;
 }
 
+
