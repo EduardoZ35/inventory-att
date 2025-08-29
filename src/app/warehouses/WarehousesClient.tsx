@@ -183,7 +183,7 @@ export default function WarehousesClient() {
           </div>
         </div>
         
-        {canManage && (
+        {canManage() && (
           <button
             onClick={handleAddNew}
             className="btn-theme-primary"
@@ -220,7 +220,7 @@ export default function WarehousesClient() {
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Creada
                   </th>
-                  {canManage && (
+                  {canManage() && (
                     <th className="relative px-6 py-3">
                       <span className="sr-only">Acciones</span>
                     </th>
@@ -262,7 +262,7 @@ export default function WarehousesClient() {
                         {warehouse.created_at ? new Date(warehouse.created_at).toLocaleDateString('es-CL') : '-'}
                       </div>
                     </td>
-                    {canManage && (
+                    {canManage() && (
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => handleEdit(warehouse.id)}
@@ -292,7 +292,7 @@ export default function WarehousesClient() {
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {searchTerm ? 'No se encontraron bodegas que coincidan con tu búsqueda.' : 'Comienza agregando una nueva bodega.'}
             </p>
-            {canManage && !searchTerm && (
+            {canManage() && !searchTerm && (
               <div className="mt-6">
                 <button onClick={handleAddNew} className="btn-theme-primary">
                   <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
