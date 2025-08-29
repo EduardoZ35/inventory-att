@@ -157,32 +157,21 @@ export default function InvoicesClient() {
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <h3 className="text-red-800 dark:text-red-200 font-semibold">Error al cargar facturas</h3>
-          <p className="text-red-600 dark:text-red-300 mt-1">{error}</p>
-          {error.includes('tabla') && (
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-              <h4 className="text-blue-800 dark:text-blue-200 font-medium">💡 Solución</h4>
-              <p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
-                Necesitas crear las tablas 'invoices' y 'clients' en Supabase. 
-                Revisa el archivo <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">SETUP_DATABASE.md</code> 
-                para instrucciones detalladas.
-              </p>
-            </div>
-          )}
-          <div className="mt-3 flex gap-2">
+      <div className="main-container page-bg">
+        <div className="card-theme p-6">
+          <div className="flex items-center mb-4">
+            <svg className="h-6 w-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="text-lg font-semibold">Error al cargar facturas</h3>
+          </div>
+          <p className="mb-4">{error}</p>
+          <div className="flex gap-3">
             <button 
               onClick={fetchInvoices}
-              className="btn-secondary"
+              className="btn-theme-secondary"
             >
               Reintentar
-            </button>
-            <button 
-              onClick={() => window.open('https://github.com/tu-repo/inventory-att/blob/main/SETUP_DATABASE.md', '_blank')}
-              className="btn-primary text-sm"
-            >
-              Ver Instrucciones
             </button>
           </div>
         </div>
@@ -191,15 +180,80 @@ export default function InvoicesClient() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="main-container page-bg">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="page-header">
+        <h1 className="page-title">
           Facturas de Compra
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Administra las facturas de compra a proveedores
+        <p className="page-subtitle">
+          Gestiona las facturas de compra a proveedores
         </p>
+      </div>
+
+      {/* Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="stats-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="stats-label">Total Facturas</p>
+              <p className="stats-number text-blue-600">{invoices.length}</p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div className="stats-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="stats-label">Total Neto</p>
+              <p className="stats-number text-green-600">
+                ${invoices.reduce((total, invoice) => total + (invoice.net_amount || 0), 0).toLocaleString()}
+              </p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-lg">
+              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div className="stats-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="stats-label">Total IVA</p>
+                             <p className="stats-number text-orange-600">
+                 ${invoices.reduce((total, invoice) => total + ((invoice.total_amount || 0) - (invoice.net_amount || 0)), 0).toLocaleString()}
+               </p>
+            </div>
+            <div className="p-3 bg-orange-100 rounded-lg">
+              <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div className="stats-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="stats-label">Total General</p>
+              <p className="stats-number text-purple-600">
+                ${invoices.reduce((total, invoice) => total + (invoice.total_amount || 0), 0).toLocaleString()}
+              </p>
+            </div>
+            <div className="p-3 bg-purple-100 rounded-lg">
+              <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Barra de búsqueda y acciones */}
@@ -208,125 +262,64 @@ export default function InvoicesClient() {
           <div className="relative">
             <input
               type="text"
+              placeholder="Buscar facturas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar por número, proveedor o descripción..."
-              className="w-full px-4 py-2 pl-10 pr-4 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="input-theme w-full pl-10"
             />
-            <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
         </div>
         
-
-        
         {canManage() && (
           <button
-            onClick={handleAddNew}
-            className="btn-primary flex items-center gap-2"
+            onClick={() => router.push('/invoices/add')}
+            className="btn-theme-primary"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Nueva Factura de Compra
+            Nueva Factura
           </button>
         )}
       </div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="card-modern p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Facturas</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{filteredInvoices.length}</p>
-            </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <svg className="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-        
-        <div className="card-modern p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Compras</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">${totalAmount.toLocaleString('es-CL')}</p>
-            </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-              <svg className="h-6 w-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-            </div>
-          </div>
-        </div>
-        
-        <div className="card-modern p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Neto Total</p>
-              <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">${netAmount.toLocaleString('es-CL')}</p>
-            </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <svg className="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-        
-        <div className="card-modern p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">IVA Total</p>
-              <p className="text-2xl font-bold text-orange-900 dark:text-orange-300">${taxAmount.toLocaleString('es-CL')}</p>
-            </div>
-            <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <svg className="h-6 w-6 text-orange-600 dark:text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Lista de facturas */}
-      <div className="card-modern overflow-hidden">
+      <div className="card-theme overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">Cargando facturas...</p>
+            <p className="mt-2">Cargando facturas...</p>
           </div>
         ) : filteredInvoices.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800">
+            <table className="table-theme min-w-full">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Número
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Proveedor
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Neto
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     IVA
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Total
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Fecha Compra
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Resumen de Compra
                   </th>
                   <th className="relative px-6 py-3">
@@ -334,7 +327,7 @@ export default function InvoicesClient() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredInvoices.map((invoice) => (
                   <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">

@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import Sidebar from './Sidebar';
-import SessionTimeoutModal from './SessionTimeoutModal';
+import SessionTimeoutModal from './common/SessionTimeoutModal';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
-import { useSignOut } from '@/hooks/useSignOut';
 import { NotificationContainer } from './common/NotificationContainer';
 
 interface LayoutWrapperProps {
@@ -15,9 +14,7 @@ interface LayoutWrapperProps {
 }
 
 export default function LayoutWrapper({ children }: LayoutWrapperProps) {
-  const [showTimeoutModal, setShowTimeoutModal] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { signOut } = useSignOut();
   const { setUser, setProfile, checkAuth } = useAuthStore();
   const router = useRouter();
 
@@ -123,34 +120,14 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   }, [router]);
 
   const {
-    isWarningVisible,
-    timeLeft,
-    extendSession,
-    forceLogout
+    showWarning,
+    timeRemaining,
+    handleExtendSession,
+    handleConfirmLogout
   } = useSessionTimeout({
-    timeoutMinutes: 30, // 30 minutos de inactividad total
-    warningMinutes: 1,  // Avisar 1 minuto antes
-    onWarning: () => {
-      console.log('⚠️ Mostrando modal de timeout de sesión');
-      setShowTimeoutModal(true);
-    },
-    onTimeout: () => {
-      console.log('🚪 Timeout de sesión - cerrando automáticamente');
-      setShowTimeoutModal(false);
-    }
+    timeoutMinutes: 30,
+    warningMinutes: 1
   });
-
-  const handleExtendSession = () => {
-    console.log('✅ Usuario extendió la sesión');
-    setShowTimeoutModal(false);
-    extendSession();
-  };
-
-  const handleForceLogout = async () => {
-    console.log('🚪 Usuario eligió cerrar sesión desde modal');
-    setShowTimeoutModal(false);
-    await signOut();
-  };
 
   // Mostrar loading mientras se verifica autorización
   if (isCheckingAuth) {
@@ -194,10 +171,10 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
       {/* Modal de timeout de sesión */}
       <SessionTimeoutModal
-        isVisible={showTimeoutModal && isWarningVisible}
-        timeLeft={timeLeft}
+        isOpen={showWarning}
+        timeRemaining={timeRemaining}
         onExtendSession={handleExtendSession}
-        onLogout={handleForceLogout}
+        onConfirmLogout={handleConfirmLogout}
       />
       
       {/* Container de notificaciones - deshabilitado temporalmente */}

@@ -53,3 +53,5 @@ export const findRegionByComuna = (comunaId: string): Region | undefined => {
     region.comunas.some((comuna: Comuna) => comuna.id === comunaId)
   );
 };
+
+

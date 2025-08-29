@@ -50,3 +50,5 @@ SELECT '👉 Ve a tu aplicación web: http://localhost:3000/invoices' as siguien
 SELECT '📋 Deberías ver tu factura listada y poder crear más.' as funcionalidad;
 
 
+
+

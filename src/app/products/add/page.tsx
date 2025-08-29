@@ -83,95 +83,120 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Agregar Nuevo Producto Genérico</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md">
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Descripción:</label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            rows={4}
-            required
-          ></textarea>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="price" className="block text-gray-700 text-sm font-bold mb-2">Precio:</label>
-          <input
-            type="number"
-            id="price"
-            value={price}
-            onChange={(e) => setPrice(parseFloat(e.target.value))}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="productType" className="block text-gray-700 text-sm font-bold mb-2">Tipo de Producto:</label>
-          <select
-            id="productType"
-            value={productTypeId}
-            onChange={(e) => setProductTypeId(parseInt(e.target.value))}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          >
-            <option value="">Selecciona un tipo</option>
-            {productTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-6">
-          <label htmlFor="productModel" className="block text-gray-700 text-sm font-bold mb-2">Modelo de Producto:</label>
-          <select
-            id="productModel"
-            value={productModelId}
-            onChange={(e) => setProductModelId(parseInt(e.target.value))}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          >
-            <option value="">Selecciona un modelo</option>
-            {productModels.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            disabled={loading}
-          >
-            {loading ? 'Agregando...' : 'Agregar Producto'}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/products')}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Cancelar
-          </button>
-        </div>
-        {error && <p className="text-red-500 text-xs italic mt-4">Error: {error}</p>}
-        {success && <p className="text-green-500 text-xs italic mt-4">{success}</p>}
-      </form>
+    <div className="main-container page-bg">
+      <div className="page-header">
+        <h1 className="page-title">
+          Agregar Nuevo Producto
+        </h1>
+        <p className="page-subtitle">
+          Completa la información del nuevo producto
+        </p>
+      </div>
+
+      <div className="card-theme p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium mb-2">Nombre:</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input-theme w-full"
+              required
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium mb-2">Descripción:</label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="input-theme w-full"
+              rows={4}
+              required
+            ></textarea>
+          </div>
+          
+          <div>
+            <label htmlFor="price" className="block text-sm font-medium mb-2">Precio:</label>
+            <input
+              type="number"
+              id="price"
+              value={price}
+              onChange={(e) => setPrice(parseFloat(e.target.value))}
+              className="input-theme w-full"
+              required
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="productType" className="block text-sm font-medium mb-2">Tipo de Producto:</label>
+            <select
+              id="productType"
+              value={productTypeId}
+              onChange={(e) => setProductTypeId(parseInt(e.target.value))}
+              className="input-theme w-full"
+              required
+            >
+              <option value="">Selecciona un tipo</option>
+              {productTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label htmlFor="productModel" className="block text-sm font-medium mb-2">Modelo de Producto:</label>
+            <select
+              id="productModel"
+              value={productModelId}
+              onChange={(e) => setProductModelId(parseInt(e.target.value))}
+              className="input-theme w-full"
+              required
+            >
+              <option value="">Selecciona un modelo</option>
+              {productModels.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex items-center justify-between pt-4">
+            <button
+              type="submit"
+              className="btn-theme-primary"
+              disabled={loading}
+            >
+              {loading ? 'Agregando...' : 'Agregar Producto'}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/products')}
+              className="btn-theme-secondary"
+            >
+              Cancelar
+            </button>
+          </div>
+          
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">Error: {error}</p>
+            </div>
+          )}
+          
+          {success && (
+            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-600 text-sm">{success}</p>
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   );
 }

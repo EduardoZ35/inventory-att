@@ -3,16 +3,34 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import CountryRegionSelector from '@/components/common/CountryRegionSelector';
 
 export default function AddCustomerPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    country: '',
+    region_id: '',
+    region_name: '',
+    provincia_id: '',
+    provincia_name: '',
+    commune_id: '',
+    commune_name: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,25 +39,52 @@ export default function AddCustomerPage() {
     setSuccess(null);
 
     try {
-      const { error } = await supabase
+      console.log('Datos a insertar:', formData);
+      
+             const insertData = { 
+         name: formData.name.trim(), 
+         email: formData.email.trim(),
+         phone: formData.phone.trim() || null,
+         address: formData.address.trim() || null,
+         country: formData.country || null,
+         region_id: formData.region_id || null,
+         region_name: formData.region_name || null,
+         provincia_id: formData.provincia_id || null,
+         provincia_name: formData.provincia_name || null,
+         commune_id: formData.commune_id || null,
+         commune_name: formData.commune_name || null
+       };
+      
+      console.log('Datos procesados:', insertData);
+
+      const { data, error } = await supabase
         .from('clients')
-        .insert([{ 
-          name: name.trim(), 
-          email: email.trim(),
-          phone: phone.trim() || null,
-          address: address.trim() || null
-        }])
+        .insert([insertData])
         .select();
 
       if (error) {
+        console.error('Error de Supabase:', error);
         throw error;
       }
+      
+      console.log('Cliente insertado exitosamente:', data);
 
       setSuccess('Cliente agregado exitosamente!');
-      setName('');
-      setEmail('');
-      setPhone('');
-      setAddress('');
+      
+             // Limpiar formulario
+       setFormData({
+         name: '',
+         email: '',
+         phone: '',
+         address: '',
+         country: '',
+         region_id: '',
+         region_name: '',
+         provincia_id: '',
+         provincia_name: '',
+         commune_id: '',
+         commune_name: ''
+       });
       
       // Redirigir después de un momento
       setTimeout(() => {
@@ -75,8 +120,9 @@ export default function AddCustomerPage() {
             <input
               type="text"
               id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               placeholder="Ej: Juan Pérez López"
               required
@@ -92,8 +138,9 @@ export default function AddCustomerPage() {
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               placeholder="Ej: juan.perez@email.com"
               required
@@ -109,8 +156,9 @@ export default function AddCustomerPage() {
             <input
               type="tel"
               id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               placeholder="Ej: +56 9 1234 5678"
               maxLength={20}
@@ -122,16 +170,68 @@ export default function AddCustomerPage() {
             <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Dirección
             </label>
-            <textarea
+            <input
+              type="text"
               id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-              placeholder="Ej: Av. Principal 123, Santiago, Chile"
-              rows={3}
-              maxLength={500}
+              placeholder="Ej: Av. Principal 123"
+              maxLength={200}
             />
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Dirección exacta (calle y número)
+            </p>
           </div>
+
+                     {/* Selector de País, Región, Provincia y Comuna */}
+           <CountryRegionSelector
+             selectedCountry={formData.country as 'Chile' | 'Peru' | ''}
+             selectedRegionId={formData.region_id}
+             selectedProvinciaId={formData.provincia_id}
+             selectedCommuneId={formData.commune_id}
+             onCountryChange={(country, countryName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 country: country,
+                 region_id: '',
+                 region_name: '',
+                 provincia_id: '',
+                 provincia_name: '',
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onRegionChange={(regionId, regionName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 region_id: regionId,
+                 region_name: regionName,
+                 provincia_id: '',
+                 provincia_name: '',
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onProvinciaChange={(provinciaId, provinciaName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 provincia_id: provinciaId,
+                 provincia_name: provinciaName,
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onCommuneChange={(communeId, communeName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 commune_id: communeId,
+                 commune_name: communeName
+               }));
+             }}
+             required={false}
+           />
 
           {/* Botones */}
           <div className="flex items-center justify-between pt-4">
@@ -148,7 +248,7 @@ export default function AddCustomerPage() {
             <button
               type="submit"
               className="btn-primary"
-              disabled={loading || !name.trim() || !email.trim()}
+              disabled={loading || !formData.name.trim() || !formData.email.trim()}
             >
               {loading ? (
                 <>
@@ -211,5 +311,7 @@ export default function AddCustomerPage() {
     </div>
   );
 }
+
+
 
 

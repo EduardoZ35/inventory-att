@@ -34,3 +34,5 @@ content = re.sub(pattern, add_country_to_region, content, flags=re.DOTALL)
 print("Script completado. Por favor, aplica manualmente los cambios.")
 
 
+
+

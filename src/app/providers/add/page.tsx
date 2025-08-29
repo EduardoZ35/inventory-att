@@ -16,6 +16,8 @@ export default function AddProviderPage() {
     country: '',
     region_id: '',
     region_name: '',
+    provincia_id: '',
+    provincia_name: '',
     commune_id: '',
     commune_name: ''
   });
@@ -39,47 +41,56 @@ export default function AddProviderPage() {
     setSuccess(null);
 
     try {
-      // Construir ubicación completa
-      const fullLocation = `${formData.address.trim()}${formData.commune_name ? `, ${formData.commune_name}` : ''}${formData.region_name ? `, ${formData.region_name}` : ''}${formData.country ? `, ${formData.country}` : ''}`;
+      console.log('Datos a insertar:', formData);
+      
+             const insertData = { 
+         organization: formData.organization.trim(), 
+         dni: formData.dni.trim(),
+         contact_name: formData.contact_name.trim() || null,
+         contact_email: formData.contact_email.trim() || null,
+         contact_phone: formData.contact_phone.trim() || null,
+         address: formData.address.trim() || null,
+         country: formData.country || null,
+         region_id: formData.region_id || null,
+         region_name: formData.region_name || null,
+         provincia_id: formData.provincia_id || null,
+         provincia_name: formData.provincia_name || null,
+         commune_id: formData.commune_id || null,
+         commune_name: formData.commune_name || null
+       };
+      
+      console.log('Datos procesados:', insertData);
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('providers')
-        .insert([{
-          organization: formData.organization.trim(),
-          dni: formData.dni.trim(),
-          contact_name: formData.contact_name.trim() || null,
-          contact_email: formData.contact_email.trim() || null,
-          contact_phone: formData.contact_phone.trim() || null,
-          address: formData.address.trim() || null,
-          city: fullLocation || null,
-          country: formData.country || null,
-          region_id: formData.region_id || null,
-          region_name: formData.region_name || null,
-          commune_id: formData.commune_id || null,
-          commune_name: formData.commune_name || null
-        }])
+        .insert([insertData])
         .select();
 
       if (error) {
+        console.error('Error de Supabase:', error);
         throw error;
       }
+      
+      console.log('Proveedor insertado exitosamente:', data);
 
       setSuccess('Proveedor agregado exitosamente!');
       
-      // Limpiar formulario
-      setFormData({
-        organization: '',
-        dni: '',
-        contact_name: '',
-        contact_email: '',
-        contact_phone: '',
-        address: '',
-        country: '',
-        region_id: '',
-        region_name: '',
-        commune_id: '',
-        commune_name: ''
-      });
+             // Limpiar formulario
+       setFormData({
+         organization: '',
+         dni: '',
+         contact_name: '',
+         contact_email: '',
+         contact_phone: '',
+         address: '',
+         country: '',
+         region_id: '',
+         region_name: '',
+         provincia_id: '',
+         provincia_name: '',
+         commune_id: '',
+         commune_name: ''
+       });
       
       // Redirigir después de un momento
       setTimeout(() => {
@@ -93,19 +104,19 @@ export default function AddProviderPage() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="main-container page-bg">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="page-header">
+        <h1 className="page-title">
           Agregar Proveedor
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="page-subtitle">
           Registra un nuevo proveedor en el sistema
         </p>
       </div>
 
       {/* Formulario */}
-      <div className="card-modern p-6">
+      <div className="card-theme p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información de la empresa */}
           <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
@@ -236,39 +247,53 @@ export default function AddProviderPage() {
                 </p>
               </div>
 
-              {/* Selector de País, Región y Comuna */}
-              <CountryRegionSelector
-                selectedCountry={formData.country as 'Chile' | 'Peru' | ''}
-                selectedRegionId={formData.region_id}
-                selectedCommuneId={formData.commune_id}
-                onCountryChange={(country, countryName) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    country: country,
-                    region_id: '',
-                    region_name: '',
-                    commune_id: '',
-                    commune_name: ''
-                  }));
-                }}
-                onRegionChange={(regionId, regionName) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    region_id: regionId,
-                    region_name: regionName,
-                    commune_id: '',
-                    commune_name: ''
-                  }));
-                }}
-                onCommuneChange={(communeId, communeName) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    commune_id: communeId,
-                    commune_name: communeName
-                  }));
-                }}
-                required={false}
-              />
+                         {/* Selector de País, Región, Provincia y Comuna */}
+           <CountryRegionSelector
+             selectedCountry={formData.country as 'Chile' | 'Peru' | ''}
+             selectedRegionId={formData.region_id}
+             selectedProvinciaId={formData.provincia_id}
+             selectedCommuneId={formData.commune_id}
+             onCountryChange={(country, countryName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 country: country,
+                 region_id: '',
+                 region_name: '',
+                 provincia_id: '',
+                 provincia_name: '',
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onRegionChange={(regionId, regionName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 region_id: regionId,
+                 region_name: regionName,
+                 provincia_id: '',
+                 provincia_name: '',
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onProvinciaChange={(provinciaId, provinciaName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 provincia_id: provinciaId,
+                 provincia_name: provinciaName,
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onCommuneChange={(communeId, communeName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 commune_id: communeId,
+                 commune_name: communeName
+               }));
+             }}
+             required={false}
+           />
             </div>
           </div>
 
@@ -277,7 +302,7 @@ export default function AddProviderPage() {
             <button
               type="button"
               onClick={() => router.push('/providers')}
-              className="btn-secondary"
+              className="btn-theme-secondary"
             >
               <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -286,7 +311,7 @@ export default function AddProviderPage() {
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="btn-theme-primary"
               disabled={loading || !formData.organization.trim() || !formData.dni.trim()}
             >
               {loading ? (

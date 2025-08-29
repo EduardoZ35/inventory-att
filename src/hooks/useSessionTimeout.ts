@@ -1,159 +1,104 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { useSignOut } from './useSignOut';
+import { useEffect, useRef, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { useRouter } from 'next/navigation';
 
-interface UseSessionTimeoutOptions {
-  timeoutMinutes?: number; // Tiempo total de inactividad antes del logout (default: 30 min)
-  warningMinutes?: number; // Minutos antes del timeout para mostrar aviso (default: 1 min)
-  onWarning?: () => void; // Callback cuando se muestra el aviso
-  onTimeout?: () => void; // Callback cuando se hace logout automático
+interface SessionTimeoutConfig {
+  timeoutMinutes: number;
+  warningMinutes: number;
 }
 
-export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
-  const {
-    timeoutMinutes = 30,
-    warningMinutes = 1,
-    onWarning,
-    onTimeout
-  } = options;
+export const useSessionTimeout = (config: SessionTimeoutConfig = { timeoutMinutes: 30, warningMinutes: 1 }) => {
+  const [showWarning, setShowWarning] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const warningRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
 
-  const { signOut } = useSignOut();
-  
-  // Estados
-  const [isWarningVisible, setIsWarningVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0); // Segundos restantes
-  
-  // Referencias para los timers
-  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastActivityRef = useRef<number>(Date.now());
-
-  // Convertir minutos a milisegundos
-  const timeoutMs = timeoutMinutes * 60 * 1000;
-  const warningMs = warningMinutes * 60 * 1000;
-
-  // Limpiar todos los timers
-  const clearAllTimers = useCallback(() => {
-    if (warningTimerRef.current) {
-      clearTimeout(warningTimerRef.current);
-      warningTimerRef.current = null;
+  const resetSession = () => {
+    // Limpiar timeouts existentes
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-    if (logoutTimerRef.current) {
-      clearTimeout(logoutTimerRef.current);
-      logoutTimerRef.current = null;
+    if (warningRef.current) {
+      clearTimeout(warningRef.current);
     }
-    if (countdownTimerRef.current) {
-      clearInterval(countdownTimerRef.current);
-      countdownTimerRef.current = null;
+
+    // Ocultar modal de advertencia
+    setShowWarning(false);
+
+    // Configurar nuevo timeout
+    const timeoutMs = config.timeoutMinutes * 60 * 1000;
+    const warningMs = (config.timeoutMinutes - config.warningMinutes) * 60 * 1000;
+
+    // Timeout de advertencia (1 minuto antes)
+    warningRef.current = setTimeout(() => {
+      setShowWarning(true);
+      setTimeRemaining(config.warningMinutes * 60);
+    }, warningMs);
+
+    // Timeout de cierre de sesión
+    timeoutRef.current = setTimeout(async () => {
+      await handleLogout();
+    }, timeoutMs);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.push('/auth?logout_success=true');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      router.push('/auth?logout_error=true');
     }
-  }, []);
+  };
 
-  // Logout automático
-  const handleAutoLogout = useCallback(async () => {
-    console.log('🚪 Sesión expirada por inactividad - cerrando sesión automáticamente');
-    clearAllTimers();
-    setIsWarningVisible(false);
-    onTimeout?.();
-    await signOut();
-  }, [signOut, onTimeout, clearAllTimers]);
+  const handleExtendSession = () => {
+    setShowWarning(false);
+    resetSession();
+  };
 
-  // Mostrar aviso de cierre próximo
-  const showWarning = useCallback(() => {
-    console.log('⚠️ Mostrando aviso de cierre de sesión próximo');
-    setIsWarningVisible(true);
-    setTimeLeft(warningMinutes * 60); // Convertir a segundos
-    onWarning?.();
+  const handleConfirmLogout = async () => {
+    setShowWarning(false);
+    await handleLogout();
+  };
 
-    // Iniciar countdown
-    countdownTimerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
+  // Actualizar contador regresivo
+  useEffect(() => {
+    if (!showWarning) return;
+
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => {
         if (prev <= 1) {
+          clearInterval(interval);
+          handleLogout();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    // Timer para logout automático
-    logoutTimerRef.current = setTimeout(handleAutoLogout, warningMs);
-  }, [warningMs, warningMinutes, onWarning, handleAutoLogout]);
+    return () => clearInterval(interval);
+  }, [showWarning]);
 
-  // Reiniciar los timers cuando hay actividad
-  const resetTimers = useCallback(() => {
-    lastActivityRef.current = Date.now();
-    clearAllTimers();
-    setIsWarningVisible(false);
-
-    console.log(`🔄 Actividad detectada - reiniciando timer de sesión (${timeoutMinutes} min)`);
-
-    // Timer para mostrar aviso
-    warningTimerRef.current = setTimeout(showWarning, timeoutMs - warningMs);
-  }, [timeoutMs, warningMs, timeoutMinutes, showWarning, clearAllTimers]);
-
-  // Extender la sesión (cuando el usuario hace clic en "mantener activa")
-  const extendSession = useCallback(() => {
-    console.log('✅ Usuario eligió mantener sesión activa');
-    resetTimers();
-  }, [resetTimers]);
-
-  // Eventos que indican actividad del usuario
-  const activityEvents = [
-    'mousedown',
-    'mousemove',
-    'keypress',
-    'scroll',
-    'touchstart',
-    'click'
-  ];
-
+  // Inicializar timeout al montar el componente
   useEffect(() => {
-    // Throttle para evitar demasiadas llamadas
-    let throttleTimer: NodeJS.Timeout | null = null;
-    
-    const handleActivity = () => {
-      if (throttleTimer) return;
-      
-      throttleTimer = setTimeout(() => {
-        throttleTimer = null;
-        
-        // Solo resetear si no estamos en el aviso
-        if (!isWarningVisible) {
-          resetTimers();
-        }
-      }, 1000); // Throttle de 1 segundo
-    };
+    resetSession();
 
-    // Inicializar timers
-    resetTimers();
-
-    // Agregar listeners de actividad
-    activityEvents.forEach(event => {
-      document.addEventListener(event, handleActivity, true);
-    });
-
-    // Cleanup
     return () => {
-      clearAllTimers();
-      if (throttleTimer) clearTimeout(throttleTimer);
-      
-      activityEvents.forEach(event => {
-        document.removeEventListener(event, handleActivity, true);
-      });
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (warningRef.current) {
+        clearTimeout(warningRef.current);
+      }
     };
-  }, [resetTimers, isWarningVisible, clearAllTimers]);
-
-  // Cleanup cuando el componente se desmonta
-  useEffect(() => {
-    return () => {
-      clearAllTimers();
-    };
-  }, [clearAllTimers]);
+  }, []);
 
   return {
-    isWarningVisible,
-    timeLeft,
-    extendSession,
-    forceLogout: handleAutoLogout,
-    resetTimers
+    showWarning,
+    timeRemaining,
+    handleExtendSession,
+    handleConfirmLogout,
+    resetSession
   };
-}
+};

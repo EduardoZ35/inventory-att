@@ -136,3 +136,5 @@ LEFT JOIN public.purchase_invoices pi ON pii.purchase_invoice_id = pi.id
 ORDER BY pi.purchase_date DESC, pii.product_name;
 
 
+
+

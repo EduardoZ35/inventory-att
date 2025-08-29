@@ -102,10 +102,37 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Clases utilitarias para fondos dinámicos que funcionan en ambos temas */
+.page-bg {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+.dark .page-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+.page-bg-alt {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
+}
+
+.dark .page-bg-alt {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #4338ca 100%);
+}
+
+/* Clases para contenedores principales */
+.main-container {
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.dark .main-container {
+  background: var(--gradient-primary);
+}
+
 /* Animaciones para notificaciones */
 @keyframes slideIn {
   from {
-    transform: translateX(100%);
+    transform: translateX(-100%);
     opacity: 0;
   }
   to {
@@ -114,8 +141,24 @@ body {
   }
 }
 
-.animate-slideIn {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Clases para animaciones */
+.slide-in {
   animation: slideIn 0.3s ease-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
 /* Clases utilitarias personalizadas */
@@ -195,54 +238,7 @@ body {
   margin: 0 auto;
 }
 
-/* Clases utilitarias para texto responsivo al tema */
-.text-primary {
-  color: var(--foreground);
-}
-
-.text-secondary {
-  color: var(--text-secondary, #64748b);
-}
-
-.text-muted {
-  color: var(--text-muted, #94a3b8);
-}
-
-.text-accent {
-  color: var(--text-accent, #3b82f6);
-}
-
-/* Sistema completo de modo oscuro */
-.dark {
-  color-scheme: dark;
-}
-
-.dark .card-modern {
-  background: var(--card-bg) !important;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-}
-
-.dark .gradient-bg {
-  background: var(--gradient-primary) !important;
-}
-
-/* Correcciones de texto para modo oscuro */
-.dark .text-gray-900,
-.dark .text-gray-800,
-.dark .text-gray-700 {
-  color: var(--text-primary) !important;
-}
-
-.dark .text-gray-600,
-.dark .text-gray-500 {
-  color: var(--text-secondary) !important;
-}
-
-.dark .text-gray-400,
-.dark .text-gray-500 {
-  color: var(--text-muted) !important;
-}
-
+/* Colores específicos en modo oscuro */
 .dark .text-blue-600 {
   color: #60a5fa !important;
 }
@@ -440,4 +436,573 @@ body {
 /* Sidebar específico en modo oscuro */
 .dark aside {
   background: var(--sidebar-bg) !important;
+}
+
+/* SISTEMA DE TEMAS PARA PÁGINAS PRINCIPALES */
+/* Tarjetas principales - MODO CLARO */
+.card-theme {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.card-theme:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Tarjetas principales - MODO OSCURO */
+.dark .card-theme {
+  background: #1e293b !important;
+  border: 2px solid #475569 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .card-theme:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Tarjetas de estadísticas - MODO CLARO */
+.stats-card {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.stats-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Tarjetas de estadísticas - MODO OSCURO */
+.dark .stats-card {
+  background: #1e293b !important;
+  border: 2px solid #475569 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .stats-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Números de estadísticas - MODO CLARO */
+.stats-number {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+
+/* Números de estadísticas - MODO OSCURO */
+.dark .stats-number {
+  color: #f8fafc !important;
+}
+
+/* Etiquetas de estadísticas - MODO CLARO */
+.stats-label {
+  color: #475569 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+/* Etiquetas de estadísticas - MODO OSCURO */
+.dark .stats-label {
+  color: #cbd5e1 !important;
+}
+
+/* Títulos de página - MODO CLARO */
+.page-title {
+  font-size: 2.25rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Títulos de página - MODO OSCURO */
+.dark .page-title {
+  color: #f8fafc !important;
+}
+
+/* Subtítulos de página - MODO CLARO */
+.page-subtitle {
+  color: #475569 !important;
+  font-size: 1rem !important;
+}
+
+/* Subtítulos de página - MODO OSCURO */
+.dark .page-subtitle {
+  color: #cbd5e1 !important;
+}
+
+/* Headers de página */
+.page-header {
+  margin-bottom: 2rem !important;
+}
+
+/* Botones temáticos - MODO CLARO */
+.btn-theme-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+}
+
+.btn-theme-primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Botones temáticos - MODO OSCURO */
+.dark .btn-theme-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3) !important;
+}
+
+.dark .btn-theme-primary:hover {
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Botones secundarios - MODO CLARO */
+.btn-theme-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2) !important;
+}
+
+.btn-theme-secondary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3) !important;
+}
+
+/* Botones secundarios - MODO OSCURO */
+.dark .btn-theme-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.3) !important;
+}
+
+.dark .btn-theme-secondary:hover {
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.4) !important;
+}
+
+/* Inputs temáticos - MODO CLARO */
+.input-theme {
+  background: #ffffff !important;
+  border: 2px solid #d1d5db !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  color: #1e293b !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.input-theme:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.input-theme::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Inputs temáticos - MODO OSCURO */
+.dark .input-theme {
+  background: #334155 !important;
+  border: 2px solid #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark .input-theme:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .input-theme::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Tablas temáticas - MODO CLARO */
+.table-theme {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border: 2px solid #e2e8f0 !important;
+}
+
+.table-theme th {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  font-weight: 600 !important;
+  padding: 16px !important;
+  text-align: left !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.table-theme td {
+  padding: 16px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  color: #374151 !important;
+}
+
+.table-theme tr:hover {
+  background: #f8fafc !important;
+}
+
+/* Tablas temáticas - MODO OSCURO */
+.dark .table-theme {
+  background: #1e293b !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+  border: 2px solid #475569 !important;
+}
+
+.dark .table-theme th {
+  background: #334155 !important;
+  border-bottom: 2px solid #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark .table-theme td {
+  border-bottom: 1px solid #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark .table-theme tr:hover {
+  background: #334155 !important;
+}
+
+/* Modales temáticos - MODO CLARO */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.modal-content {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: 2px solid #e2e8f0 !important;
+}
+
+/* Modales temáticos - MODO OSCURO */
+.dark .modal-content {
+  background: #1e293b !important;
+  border: 2px solid #475569 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Badges temáticos */
+.badge-theme {
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+.badge-success {
+  background: var(--success-bg) !important;
+  color: var(--success-text) !important;
+}
+
+.badge-warning {
+  background: var(--warning-bg) !important;
+  color: var(--warning-text) !important;
+}
+
+.badge-error {
+  background: var(--error-bg) !important;
+  color: var(--error-text) !important;
+}
+
+.badge-info {
+  background: var(--info-bg) !important;
+  color: var(--info-text) !important;
+}
+
+/* MEJORAS ESPECÍFICAS PARA LA PÁGINA DE LOGIN */
+.auth-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.auth-container::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") !important;
+  pointer-events: none !important;
+}
+
+.dark .auth-container {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%) !important;
+}
+
+.dark .auth-container::before {
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") !important;
+}
+
+.auth-card {
+  position: relative !important;
+  z-index: 10 !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Clase gradient-bg para el login */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.dark .gradient-bg {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%) !important;
+}
+
+/* Clase card-modern para el login */
+.card-modern {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+.dark .card-modern {
+  background: rgba(31, 41, 55, 0.9) !important;
+  border: 1px solid rgba(75, 85, 99, 0.2) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Animaciones suaves para elementos del login */
+.auth-container .card-modern {
+  animation: fadeInUp 0.6s ease-out !important;
+}
+
+.auth-container h1 {
+  animation: fadeInDown 0.6s ease-out 0.2s both !important;
+}
+
+.auth-container .card-modern {
+  animation: fadeInUp 0.6s ease-out 0.4s both !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efectos hover mejorados para el botón de Google */
+.auth-container button:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark .auth-container button:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* CORRECCIONES ESPECÍFICAS PARA LOGIN EN MODO CLARO */
+.auth-container .text-gray-900 {
+  color: #111827 !important;
+}
+
+.auth-container .text-gray-800 {
+  color: #1f2937 !important;
+}
+
+.auth-container .text-gray-700 {
+  color: #374151 !important;
+}
+
+.auth-container .text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.auth-container .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.auth-container .text-white {
+  color: #ffffff !important;
+}
+
+.auth-container .text-red-800 {
+  color: #991b1b !important;
+}
+
+.auth-container .text-blue-800 {
+  color: #1e40af !important;
+}
+
+.auth-container .text-blue-500 {
+  color: #3b82f6 !important;
+}
+
+.auth-container .text-blue-400 {
+  color: #60a5fa !important;
+}
+
+/* Asegurar que todos los elementos del login tengan texto visible */
+.auth-container h1,
+.auth-container h2,
+.auth-container h3,
+.auth-container p,
+.auth-container span,
+.auth-container div {
+  color: inherit !important;
+}
+
+/* CORRECCIONES ESPECÍFICAS PARA EL BOTÓN DE GOOGLE */
+.auth-container button {
+  color: #374151 !important;
+}
+
+.auth-container button span {
+  color: #374151 !important;
+}
+
+.dark .auth-container button {
+  color: #e5e7eb !important;
+}
+
+.dark .auth-container button span {
+  color: #e5e7eb !important;
+}
+
+/* Asegurar que el texto del botón de Google sea visible */
+.auth-container button[type="button"] {
+  color: #374151 !important;
+}
+
+.auth-container button[type="button"] span {
+  color: #374151 !important;
+}
+
+.dark .auth-container button[type="button"] {
+  color: #e5e7eb !important;
+}
+
+.dark .auth-container button[type="button"] span {
+  color: #e5e7eb !important;
+}
+
+/* REGLAS MÁS ESPECÍFICAS PARA EL BOTÓN DE GOOGLE */
+.auth-container button.text-gray-700 {
+  color: #374151 !important;
+}
+
+.auth-container button.text-gray-700 span {
+  color: #374151 !important;
+}
+
+.auth-container button.dark\\:text-gray-200 {
+  color: #374151 !important;
+}
+
+.auth-container button.dark\\:text-gray-200 span {
+  color: #374151 !important;
+}
+
+.dark .auth-container button.text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+.dark .auth-container button.text-gray-700 span {
+  color: #e5e7eb !important;
+}
+
+.dark .auth-container button.dark\\:text-gray-200 {
+  color: #e5e7eb !important;
+}
+
+.dark .auth-container button.dark\\:text-gray-200 span {
+  color: #e5e7eb !important;
+}
+
+/* REGLAS UNIVERSALES PARA CUALQUIER TEXTO EN EL BOTÓN */
+.auth-container button * {
+  color: #374151 !important;
+}
+
+.dark .auth-container button * {
+  color: #e5e7eb !important;
+}
+
+/* REGLAS ESPECÍFICAS PARA EL SPAN DEL BOTÓN */
+.auth-container button span.font-semibold {
+  color: #374151 !important;
+}
+
+.dark .auth-container button span.font-semibold {
+  color: #e5e7eb !important;
+}
+
+.auth-container button span.text-lg {
+  color: #374151 !important;
+}
+
+.dark .auth-container button span.text-lg {
+  color: #e5e7eb !important;
+}
+
+/* Correcciones específicas para el sidebar en modo claro */
+aside .text-gray-800 {
+  color: #1f2937 !important;
+}
+
+aside .text-gray-700 {
+  color: #374151 !important;
+}
+
+aside .text-gray-600 {
+  color: #4b5563 !important;
+}
+
+aside .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.dark aside .text-gray-800,
+.dark aside .text-gray-700,
+.dark aside .text-gray-600,
+.dark aside .text-gray-500 {
+  color: #f8fafc !important;
 }

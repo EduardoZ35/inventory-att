@@ -177,3 +177,5 @@ ORDER BY pi.purchase_date DESC, pii.product_name;
 SELECT '✅ Sistema de facturas de compra listo para usar' as resultado_final;
 
 
+
+

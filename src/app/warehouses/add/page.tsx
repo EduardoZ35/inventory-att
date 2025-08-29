@@ -70,23 +70,23 @@ export default function AddWarehousePage() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="main-container page-bg">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="page-header">
+        <h1 className="page-title">
           Agregar Bodega
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="page-subtitle">
           Registra una nueva bodega en el sistema de inventario
         </p>
       </div>
 
       {/* Formulario */}
-      <div className="card-modern p-6">
+      <div className="card-theme p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nombre */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium mb-2">
               Nombre de la Bodega <span className="text-red-500">*</span>
             </label>
             <input
@@ -94,7 +94,7 @@ export default function AddWarehousePage() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="input-theme w-full"
               placeholder="Ej: Bodega Central, Almacén Norte..."
               required
               maxLength={100}
@@ -106,7 +106,7 @@ export default function AddWarehousePage() {
 
           {/* Dirección */}
           <div>
-            <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="address" className="block text-sm font-medium mb-2">
               Dirección <span className="text-red-500">*</span>
             </label>
             <input
@@ -114,7 +114,7 @@ export default function AddWarehousePage() {
               id="address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="input-theme w-full"
               placeholder="Ej: Pedro de Valdivia 6055"
               required
               maxLength={200}
@@ -141,7 +141,7 @@ export default function AddWarehousePage() {
 
           {/* Descripción/Detalles */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium mb-2">
               Descripción o Detalles
             </label>
             <textarea
@@ -149,7 +149,7 @@ export default function AddWarehousePage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="input-theme w-full"
               placeholder="Ej: Número de bodega: 2096, Características especiales, etc."
               maxLength={500}
             />
@@ -160,7 +160,7 @@ export default function AddWarehousePage() {
 
           {/* Capacidad */}
           <div>
-            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="capacity" className="block text-sm font-medium mb-2">
               Capacidad (opcional)
             </label>
             <input
@@ -168,7 +168,7 @@ export default function AddWarehousePage() {
               id="capacity"
               value={capacity}
               onChange={(e) => setCapacity(e.target.value === '' ? '' : parseInt(e.target.value))}
-              className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="input-theme w-full"
               placeholder="Ej: 1000"
               min="1"
               max="999999999"
@@ -183,7 +183,7 @@ export default function AddWarehousePage() {
             <button
               type="button"
               onClick={() => router.push('/warehouses')}
-              className="btn-secondary"
+              className="btn-theme-secondary"
             >
               <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -192,7 +192,7 @@ export default function AddWarehousePage() {
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="btn-theme-primary"
               disabled={loading || !name.trim() || !address.trim() || !communeId || !regionId}
             >
               {loading ? (
@@ -203,7 +203,7 @@ export default function AddWarehousePage() {
               ) : (
                 <>
                   <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   Guardar Bodega
                 </>
@@ -213,7 +213,7 @@ export default function AddWarehousePage() {
 
           {/* Mensajes */}
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,10 +221,10 @@ export default function AddWarehousePage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                  <h3 className="text-sm font-medium text-red-800">
                     Error al agregar bodega
                   </h3>
-                  <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                  <div className="mt-2 text-sm text-red-700">
                     {error}
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export default function AddWarehousePage() {
           )}
 
           {success && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,10 +241,10 @@ export default function AddWarehousePage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
+                  <h3 className="text-sm font-medium text-green-800">
                     ¡Éxito!
                   </h3>
-                  <div className="mt-2 text-sm text-green-700 dark:text-green-300">
+                  <div className="mt-2 text-sm text-green-700">
                     {success} Redirigiendo...
                   </div>
                 </div>

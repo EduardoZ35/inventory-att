@@ -36,3 +36,5 @@ SELECT
 WHERE (SELECT COUNT(*) FROM public.invoices) > 0;
 
 
+
+

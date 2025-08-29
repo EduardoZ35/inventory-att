@@ -23,7 +23,7 @@ function NavLink({ href, children }: NavLinkProps) {
       className={`flex items-center p-3 rounded-xl transition-all duration-200 group ${
         isActive 
           ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25' 
-          : 'text-slate-300 hover:bg-white/10 hover:text-white'
+          : 'text-gray-800 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
       }`}
     >
       {children}
@@ -109,7 +109,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-slate-800 to-slate-900 text-white p-6 flex flex-col h-screen shadow-xl">
+    <aside className="w-64 bg-white dark:bg-gradient-to-b dark:from-slate-800 dark:to-slate-900 text-gray-900 dark:text-white p-6 flex flex-col h-screen shadow-xl border-r border-gray-200 dark:border-slate-700">
       {/* Header del sidebar */}
       <div className="mb-8">
         <div className="flex items-center justify-center w-12 h-12 bg-blue-500 rounded-xl mb-4 mx-auto shadow-lg">
@@ -117,13 +117,13 @@ export default function Sidebar() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-center text-white">Inventario ATT</h1>
-        <p className="text-xs text-slate-400 text-center mt-1">Sistema de Gestión</p>
+        <h1 className="text-xl font-bold text-center text-gray-900 dark:text-white">Inventario ATT</h1>
+        <p className="text-xs text-gray-600 dark:text-slate-400 text-center mt-1">Sistema de Gestión</p>
       </div>
 
       {/* Información del usuario */}
       {user && (
-        <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+        <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 mb-6 border border-gray-200 dark:border-white/10">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
               <span className="text-sm font-medium text-white">
@@ -131,10 +131,10 @@ export default function Sidebar() {
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'}
               </p>
-              <p className="text-xs text-slate-400 truncate">{userRole || 'Cargando...'}</p>
+              <p className="text-xs text-gray-600 dark:text-slate-400 truncate">{userRole || 'Cargando...'}</p>
             </div>
           </div>
         </div>
@@ -206,9 +206,9 @@ export default function Sidebar() {
             <>
               <li className="pt-4">
                 <div className="flex items-center space-x-2 px-3 py-2">
-                  <div className="flex-1 h-px bg-slate-600"></div>
-                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Administración</span>
-                  <div className="flex-1 h-px bg-slate-600"></div>
+                  <div className="flex-1 h-px bg-gray-300 dark:bg-slate-600"></div>
+                  <span className="text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wider">Administración</span>
+                  <div className="flex-1 h-px bg-gray-300 dark:bg-slate-600"></div>
                 </div>
               </li>
               <li>

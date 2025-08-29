@@ -93,3 +93,5 @@ SELECT COUNT(*) as registros_totales FROM public.invoices;
 SELECT * FROM public.invoices ORDER BY id DESC LIMIT 3;
 
 
+
+

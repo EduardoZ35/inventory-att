@@ -78,3 +78,5 @@ SELECT 'TEST INSERT:' as info;
 SELECT 'Políticas configuradas para permitir INSERT' as resultado;
 
 
+
+

@@ -297,3 +297,5 @@ END $$;
 SELECT 'SCRIPT COMPLETADO - ¡Revisa las páginas ahora!' as resultado;
 
 
+
+

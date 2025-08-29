@@ -101,3 +101,5 @@ SELECT 'WAREHOUSES EXISTENTES:' as info;
 SELECT COUNT(*) as total_warehouses FROM public.warehouses;
 
 
+
+

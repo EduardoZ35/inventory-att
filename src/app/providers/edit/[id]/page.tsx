@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import CountryRegionSelector from '@/components/common/CountryRegionSelector';
 
 interface EditProviderPageProps {
   params: {
@@ -18,7 +19,13 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
     contact_email: '',
     contact_phone: '',
     address: '',
-    city: ''
+    country: '',
+    region_id: '',
+    region_name: '',
+    provincia_id: '',
+    provincia_name: '',
+    commune_id: '',
+    commune_name: ''
   });
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +53,13 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
           contact_email: data.contact_email || '',
           contact_phone: data.contact_phone || '',
           address: data.address || '',
-          city: data.city || ''
+          country: data.country || '',
+          region_id: data.region_id || '',
+          region_name: data.region_name || '',
+          provincia_id: data.provincia_id || '',
+          provincia_name: data.provincia_name || '',
+          commune_id: data.commune_id || '',
+          commune_name: data.commune_name || ''
         });
       }
     } catch (err) {
@@ -72,6 +85,9 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
     setSuccess(null);
 
     try {
+      // Construir ubicación completa
+      const fullLocation = `${formData.address.trim()}${formData.commune_name ? `, ${formData.commune_name}` : ''}${formData.region_name ? `, ${formData.region_name}` : ''}${formData.country ? `, ${formData.country}` : ''}`;
+
       const { error } = await supabase
         .from('providers')
         .update({
@@ -81,7 +97,13 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
           contact_email: formData.contact_email.trim() || null,
           contact_phone: formData.contact_phone.trim() || null,
           address: formData.address.trim() || null,
-          city: formData.city.trim() || null,
+          country: formData.country || null,
+          region_id: formData.region_id || null,
+          region_name: formData.region_name || null,
+          provincia_id: formData.provincia_id || null,
+          provincia_name: formData.provincia_name || null,
+          commune_id: formData.commune_id || null,
+          commune_name: formData.commune_name || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', providerId);
@@ -261,7 +283,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
               Ubicación
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Dirección
@@ -276,23 +298,58 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
                   placeholder="Ej: Av. Providencia 1234"
                   maxLength={200}
                 />
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Dirección exacta (calle y número)
+                </p>
               </div>
 
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Ciudad
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-                  placeholder="Ej: Santiago"
-                  maxLength={100}
-                />
-              </div>
+              {/* Selector de País, Región, Provincia y Comuna */}
+              <CountryRegionSelector
+                selectedCountry={formData.country as 'Chile' | 'Peru' | ''}
+                selectedRegionId={formData.region_id}
+                selectedProvinciaId={formData.provincia_id}
+                selectedCommuneId={formData.commune_id}
+                onCountryChange={(country, countryName) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    country: country,
+                    region_id: '',
+                    region_name: '',
+                    provincia_id: '',
+                    provincia_name: '',
+                    commune_id: '',
+                    commune_name: ''
+                  }));
+                }}
+                onRegionChange={(regionId, regionName) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    region_id: regionId,
+                    region_name: regionName,
+                    provincia_id: '',
+                    provincia_name: '',
+                    commune_id: '',
+                    commune_name: ''
+                  }));
+                }}
+                onProvinciaChange={(provinciaId, provinciaName) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    provincia_id: provinciaId,
+                    provincia_name: provinciaName,
+                    commune_id: '',
+                    commune_name: ''
+                  }));
+                }}
+                onCommuneChange={(communeId, communeName) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    commune_id: communeId,
+                    commune_name: communeName
+                  }));
+                }}
+                required={false}
+              />
             </div>
           </div>
 
@@ -374,5 +431,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
     </div>
   );
 }
+
+
 
 

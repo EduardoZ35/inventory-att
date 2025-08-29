@@ -1,14 +1,24 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { chilePeruRegionsCommunes, findComunasByRegion, getRegionsByCountry, type Region, type Comuna } from '@/data/chilePeruRegions';
+import { 
+  chilePeruRegionsCommunes, 
+  findProvinciasByRegion, 
+  findComunasByProvincia, 
+  getRegionsByCountry, 
+  type Region, 
+  type Provincia,
+  type Comuna 
+} from '@/data/chilePeruRegions';
 
 interface CountryRegionSelectorProps {
   selectedCountry?: 'Chile' | 'Peru' | '';
   selectedRegionId?: string;
+  selectedProvinciaId?: string;
   selectedCommuneId?: string;
   onCountryChange: (country: 'Chile' | 'Peru' | '', countryName: string) => void;
   onRegionChange: (regionId: string, regionName: string) => void;
+  onProvinciaChange: (provinciaId: string, provinciaName: string) => void;
   onCommuneChange: (communeId: string, communeName: string) => void;
   disabled?: boolean;
   required?: boolean;
@@ -18,15 +28,18 @@ interface CountryRegionSelectorProps {
 export default function CountryRegionSelector({
   selectedCountry = '',
   selectedRegionId = '',
+  selectedProvinciaId = '',
   selectedCommuneId = '',
   onCountryChange,
   onRegionChange,
+  onProvinciaChange,
   onCommuneChange,
   disabled = false,
   required = false,
   className = ''
 }: CountryRegionSelectorProps) {
   const [availableRegions, setAvailableRegions] = useState<Region[]>([]);
+  const [availableProvincias, setAvailableProvincias] = useState<Provincia[]>([]);
   const [availableCommunas, setAvailableCommunas] = useState<Comuna[]>([]);
 
   // Actualizar regiones cuando cambia el país
@@ -39,24 +52,47 @@ export default function CountryRegionSelector({
       const currentRegionExists = regions.some(r => r.id === selectedRegionId);
       if (selectedRegionId && !currentRegionExists) {
         onRegionChange('', '');
+        onProvinciaChange('', '');
         onCommuneChange('', '');
       }
     } else {
       setAvailableRegions([]);
       if (selectedRegionId) {
         onRegionChange('', '');
+        onProvinciaChange('', '');
         onCommuneChange('', '');
       }
     }
-  }, [selectedCountry, selectedRegionId, onRegionChange, onCommuneChange]);
+  }, [selectedCountry, selectedRegionId, onRegionChange, onProvinciaChange, onCommuneChange]);
 
-  // Actualizar comunas cuando cambia la región
+  // Actualizar provincias cuando cambia la región
   useEffect(() => {
     if (selectedRegionId) {
-      const comunas = findComunasByRegion(selectedRegionId);
+      const provincias = findProvinciasByRegion(selectedRegionId);
+      setAvailableProvincias(provincias);
+      
+      // Si la provincia seleccionada no está en la nueva región, limpiarla
+      const currentProvinciaExists = provincias.some(p => p.id === selectedProvinciaId);
+      if (selectedProvinciaId && !currentProvinciaExists) {
+        onProvinciaChange('', '');
+        onCommuneChange('', '');
+      }
+    } else {
+      setAvailableProvincias([]);
+      if (selectedProvinciaId) {
+        onProvinciaChange('', '');
+        onCommuneChange('', '');
+      }
+    }
+  }, [selectedRegionId, selectedProvinciaId, onProvinciaChange, onCommuneChange]);
+
+  // Actualizar comunas cuando cambia la provincia
+  useEffect(() => {
+    if (selectedProvinciaId) {
+      const comunas = findComunasByProvincia(selectedProvinciaId);
       setAvailableCommunas(comunas);
       
-      // Si la comuna seleccionada no está en la nueva región, limpiarla
+      // Si la comuna seleccionada no está en la nueva provincia, limpiarla
       const currentCommuneExists = comunas.some(c => c.id === selectedCommuneId);
       if (selectedCommuneId && !currentCommuneExists) {
         onCommuneChange('', '');
@@ -67,7 +103,7 @@ export default function CountryRegionSelector({
         onCommuneChange('', '');
       }
     }
-  }, [selectedRegionId, selectedCommuneId, onCommuneChange]);
+  }, [selectedProvinciaId, selectedCommuneId, onCommuneChange]);
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const country = e.target.value as 'Chile' | 'Peru' | '';
@@ -78,6 +114,12 @@ export default function CountryRegionSelector({
     const regionId = e.target.value;
     const region = availableRegions.find(r => r.id === regionId);
     onRegionChange(regionId, region?.name || '');
+  };
+
+  const handleProvinciaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const provinciaId = e.target.value;
+    const provincia = availableProvincias.find(p => p.id === provinciaId);
+    onProvinciaChange(provinciaId, provincia?.name || '');
   };
 
   const handleCommuneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -136,24 +178,52 @@ export default function CountryRegionSelector({
         </select>
       </div>
 
-      {/* Selector de Comuna/Provincia */}
+      {/* Selector de Provincia */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {selectedCountry === 'Chile' ? 'Comuna' : 'Provincia'} {required && <span className="text-red-500">*</span>}
+          Provincia {required && <span className="text-red-500">*</span>}
         </label>
         <select
-          value={selectedCommuneId}
-          onChange={handleCommuneChange}
-          disabled={disabled || !selectedRegionId || availableCommunas.length === 0}
+          value={selectedProvinciaId}
+          onChange={handleProvinciaChange}
+          disabled={disabled || !selectedRegionId || availableProvincias.length === 0}
           required={required}
           className={baseSelectClass}
         >
           <option value="">
             {!selectedRegionId 
               ? "Primero selecciona una región" 
+              : availableProvincias.length === 0 
+                ? "Cargando provincias..." 
+                : "Selecciona una provincia"
+            }
+          </option>
+          {availableProvincias.map((provincia) => (
+            <option key={provincia.id} value={provincia.id}>
+              {provincia.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Selector de Comuna/Distrito */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {selectedCountry === 'Chile' ? 'Comuna' : 'Distrito'} {required && <span className="text-red-500">*</span>}
+        </label>
+        <select
+          value={selectedCommuneId}
+          onChange={handleCommuneChange}
+          disabled={disabled || !selectedProvinciaId || availableCommunas.length === 0}
+          required={required}
+          className={baseSelectClass}
+        >
+          <option value="">
+            {!selectedProvinciaId 
+              ? "Primero selecciona una provincia" 
               : availableCommunas.length === 0 
                 ? "Cargando..." 
-                : `Selecciona una ${selectedCountry === 'Chile' ? 'comuna' : 'provincia'}`
+                : `Selecciona una ${selectedCountry === 'Chile' ? 'comuna' : 'distrito'}`
             }
           </option>
           {availableCommunas.map((comuna) => (
@@ -165,7 +235,7 @@ export default function CountryRegionSelector({
       </div>
 
       {/* Información de confirmación */}
-      {selectedCountry && selectedRegionId && selectedCommuneId && (
+      {selectedCountry && selectedRegionId && selectedProvinciaId && selectedCommuneId && (
         <div className="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
           <div className="flex items-center">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,7 +244,7 @@ export default function CountryRegionSelector({
             <div>
               <span className="font-medium">Ubicación seleccionada:</span>
               <br />
-              {availableCommunas.find(c => c.id === selectedCommuneId)?.name}, {availableRegions.find(r => r.id === selectedRegionId)?.name}, {selectedCountry === 'Chile' ? '🇨🇱 Chile' : '🇵🇪 Perú'}
+              {availableCommunas.find(c => c.id === selectedCommuneId)?.name}, {availableProvincias.find(p => p.id === selectedProvinciaId)?.name}, {availableRegions.find(r => r.id === selectedRegionId)?.name}, {selectedCountry === 'Chile' ? '🇨🇱 Chile' : '🇵🇪 Perú'}
             </div>
           </div>
         </div>
@@ -182,5 +252,7 @@ export default function CountryRegionSelector({
     </div>
   );
 }
+
+
 
 

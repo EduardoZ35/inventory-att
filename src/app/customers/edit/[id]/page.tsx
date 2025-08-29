@@ -4,14 +4,24 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import type { Client } from '@/types';
+import CountryRegionSelector from '@/components/common/CountryRegionSelector';
 
 export default function EditCustomerPage() {
   const { id } = useParams();
   const [customer, setCustomer] = useState<Client | null>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    country: '',
+    region_id: '',
+    region_name: '',
+    provincia_id: '',
+    provincia_name: '',
+    commune_id: '',
+    commune_name: ''
+  });
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +36,11 @@ export default function EditCustomerPage() {
         setFetchLoading(true);
         setError(null);
 
-        const { data, error: fetchError } = await supabase
-          .from('clients')
-          .select('id, name, email, phone, address, created_at')
-          .eq('id', id)
-          .single();
+                 const { data, error: fetchError } = await supabase
+           .from('clients')
+           .select('id, name, email, phone, address, country, region_id, region_name, provincia_id, provincia_name, commune_id, commune_name, created_at')
+           .eq('id', id)
+           .single();
 
         if (fetchError) {
           throw fetchError;
@@ -38,10 +48,19 @@ export default function EditCustomerPage() {
 
         if (data) {
           setCustomer(data);
-          setName(data.name);
-          setEmail(data.email);
-          setPhone(data.phone || '');
-          setAddress(data.address || '');
+                     setFormData({
+             name: data.name,
+             email: data.email,
+             phone: data.phone || '',
+             address: data.address || '',
+             country: data.country || '',
+             region_id: data.region_id || '',
+             region_name: data.region_name || '',
+             provincia_id: data.provincia_id || '',
+             provincia_name: data.provincia_name || '',
+             commune_id: data.commune_id || '',
+             commune_name: data.commune_name || ''
+           });
         }
       } catch (err) {
         console.error('Error fetching customer:', err);
@@ -54,6 +73,14 @@ export default function EditCustomerPage() {
     fetchCustomer();
   }, [id]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -61,16 +88,26 @@ export default function EditCustomerPage() {
     setSuccess(null);
 
     try {
-      const { error } = await supabase
-        .from('clients')
-        .update({ 
-          name: name.trim(), 
-          email: email.trim(),
-          phone: phone.trim() || null,
-          address: address.trim() || null
-        })
-        .eq('id', id)
-        .select();
+      // Construir ubicación completa
+      const fullLocation = `${formData.address.trim()}${formData.commune_name ? `, ${formData.commune_name}` : ''}${formData.region_name ? `, ${formData.region_name}` : ''}${formData.country ? `, ${formData.country}` : ''}`;
+
+             const { error } = await supabase
+         .from('clients')
+         .update({ 
+           name: formData.name.trim(), 
+           email: formData.email.trim(),
+           phone: formData.phone.trim() || null,
+           address: formData.address.trim() || null,
+           country: formData.country || null,
+           region_id: formData.region_id || null,
+           region_name: formData.region_name || null,
+           provincia_id: formData.provincia_id || null,
+           provincia_name: formData.provincia_name || null,
+           commune_id: formData.commune_id || null,
+           commune_name: formData.commune_name || null
+         })
+         .eq('id', id)
+         .select();
 
       if (error) {
         throw error;
@@ -155,8 +192,9 @@ export default function EditCustomerPage() {
             <input
               type="text"
               id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               placeholder="Ej: Juan Pérez López"
               required
@@ -172,8 +210,9 @@ export default function EditCustomerPage() {
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               placeholder="Ej: juan.perez@email.com"
               required
@@ -189,8 +228,9 @@ export default function EditCustomerPage() {
             <input
               type="tel"
               id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               placeholder="Ej: +56 9 1234 5678"
               maxLength={20}
@@ -202,16 +242,68 @@ export default function EditCustomerPage() {
             <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Dirección
             </label>
-            <textarea
+            <input
+              type="text"
               id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-              placeholder="Ej: Av. Principal 123, Santiago, Chile"
-              rows={3}
-              maxLength={500}
+              placeholder="Ej: Av. Principal 123"
+              maxLength={200}
             />
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Dirección exacta (calle y número)
+            </p>
           </div>
+
+                     {/* Selector de País, Región, Provincia y Comuna */}
+           <CountryRegionSelector
+             selectedCountry={formData.country as 'Chile' | 'Peru' | ''}
+             selectedRegionId={formData.region_id}
+             selectedProvinciaId={formData.provincia_id}
+             selectedCommuneId={formData.commune_id}
+             onCountryChange={(country, countryName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 country: country,
+                 region_id: '',
+                 region_name: '',
+                 provincia_id: '',
+                 provincia_name: '',
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onRegionChange={(regionId, regionName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 region_id: regionId,
+                 region_name: regionName,
+                 provincia_id: '',
+                 provincia_name: '',
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onProvinciaChange={(provinciaId, provinciaName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 provincia_id: provinciaId,
+                 provincia_name: provinciaName,
+                 commune_id: '',
+                 commune_name: ''
+               }));
+             }}
+             onCommuneChange={(communeId, communeName) => {
+               setFormData(prev => ({
+                 ...prev,
+                 commune_id: communeId,
+                 commune_name: communeName
+               }));
+             }}
+             required={false}
+           />
 
           {/* Fecha de registro (solo lectura) */}
           <div>
@@ -241,7 +333,7 @@ export default function EditCustomerPage() {
             <button
               type="submit"
               className="btn-primary"
-              disabled={loading || !name.trim() || !email.trim()}
+              disabled={loading || !formData.name.trim() || !formData.email.trim()}
             >
               {loading ? (
                 <>
@@ -304,5 +396,7 @@ export default function EditCustomerPage() {
     </div>
   );
 }
+
+
 
 
