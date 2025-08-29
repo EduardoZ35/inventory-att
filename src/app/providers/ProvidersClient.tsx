@@ -208,7 +208,7 @@ export default function ProvidersClient() {
           </div>
         </div>
         
-        {canManage && (
+        {canManage() && (
           <button
             onClick={handleAddNew}
             className="btn-theme-primary"
@@ -333,7 +333,7 @@ export default function ProvidersClient() {
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {searchTerm ? 'No se encontraron proveedores que coincidan con tu búsqueda.' : 'Comienza agregando tu primer proveedor.'}
             </p>
-            {canManage && !searchTerm && (
+            {canManage() && !searchTerm && (
               <div className="mt-6">
                 <button
                   onClick={handleAddNew}
