@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import Sidebar from './Sidebar';
+import Header from './Header';
 import SessionTimeoutModal from './common/SessionTimeoutModal';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { NotificationContainer } from './common/NotificationContainer';
@@ -162,9 +162,9 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
   return (
     <>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="flex-grow">
+      <div className="min-h-screen bg-gray-950">
+        <Header />
+        <main className="min-h-screen pt-0">
           {children}
         </main>
       </div>

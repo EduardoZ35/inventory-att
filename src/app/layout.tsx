@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ConditionalLayoutWrapper from '@/components/ConditionalLayoutWrapper';
-import { ThemeProvider } from '@/components/ThemeProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 
 export const metadata: Metadata = {
-  title: "Inventario ATT",
-  description: "Sistema de gestión de inventario",
+  title: "Control & Soporte Tecnológico",
+  description: "Sistema integral de inventario especializado en equipos tecnológicos: relojes de asistencia, huelleros, impresoras térmicas y repuestos",
 };
 
 export default function RootLayout({
@@ -16,13 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="antialiased min-h-screen">
+      <body className="antialiased min-h-screen bg-gray-950">
         <QueryProvider>
-          <ThemeProvider>
-            <ConditionalLayoutWrapper>
-              {children}
-            </ConditionalLayoutWrapper>
-          </ThemeProvider>
+          <ConditionalLayoutWrapper>
+            {children}
+          </ConditionalLayoutWrapper>
         </QueryProvider>
       </body>
     </html>
