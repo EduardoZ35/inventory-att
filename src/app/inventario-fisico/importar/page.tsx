@@ -29,7 +29,7 @@ export default function ImportarUnidadesPage() {
       const [equipmentRes, warehousesRes] = await Promise.all([
         supabase
           .from('equipment')
-          .select('id, name, equipment_category, equipment_subcategory, price')
+          .select('id, name, description, equipment_category, equipment_subcategory, price, deleted_at')
           .is('deleted_at', null)
           .order('name'),
         supabase

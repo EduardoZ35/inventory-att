@@ -232,7 +232,7 @@ export default function UserAdminPage() {
     };
   }, [openMenuId]);
 
-  const handleRoleChange = async (profileId: string, newRole: 'admin' | 'manager' | 'viewer') => {
+  const handleRoleChange = async (profileId: string, newRole: 'admin' | 'tech_support' | 'warehouse_staff' | 'sales') => {
     setLoading(true);
     setError(null);
     
@@ -698,7 +698,7 @@ export default function UserAdminPage() {
 
       // Limpiar el formulario
       setInviteEmail('');
-      setInviteRole('viewer');
+      setInviteRole('warehouse_staff');
       setShowInviteModal(false);
 
     } catch (err) {
@@ -712,7 +712,7 @@ export default function UserAdminPage() {
   // Función para cancelar invitación
   const handleCancelInvite = () => {
     setInviteEmail('');
-    setInviteRole('viewer');
+    setInviteRole('warehouse_staff');
     setShowInviteModal(false);
   };
 

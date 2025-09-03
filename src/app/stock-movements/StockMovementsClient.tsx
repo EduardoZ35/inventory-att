@@ -253,7 +253,7 @@ export default function StockMovementsClient() {
             <div>
               <p className="stats-label">Transferencias</p>
               <p className="stats-number text-indigo-600">
-                {movements.filter(m => m.movement_type === 'transfer').length}
+                {movements.filter(m => m.movement_type === 'warehouse_transfer').length}
               </p>
             </div>
             <div className="p-3 bg-indigo-100 rounded-lg">

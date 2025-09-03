@@ -308,7 +308,7 @@ export default function EquipmentInstancesPage() {
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">En Mantenimiento</p>
               <p className="text-2xl font-bold text-yellow-600">
-                {instances.filter(i => i.status === 'maintenance').length}
+                {instances.filter(i => i.status === 'in_repair').length}
               </p>
             </div>
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
@@ -515,20 +515,20 @@ export default function EquipmentInstancesPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 dark:text-gray-300">
-                        {instance.warehouses?.name || 'Sin ubicación'}
+                        {instance.location?.name || 'Sin ubicación'}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {instance.warehouses?.warehouse_type}
+                        {instance.location?.warehouse_type}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 dark:text-gray-300">
-                        {instance.clients?.name || 'Sin asignar'}
+                        {instance.client?.name || 'Sin asignar'}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 dark:text-gray-300">
-                        <div>Creado: {new Date(instance.created_at).toLocaleDateString('es-CL')}</div>
+                        <div>Creado: {instance.created_at ? new Date(instance.created_at).toLocaleDateString('es-CL') : 'N/A'}</div>
                         {instance.installation_date && (
                           <div className="text-xs text-gray-500">
                             Instalado: {new Date(instance.installation_date).toLocaleDateString('es-CL')}

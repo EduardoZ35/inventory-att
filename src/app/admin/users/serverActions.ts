@@ -40,7 +40,7 @@ interface Profile {
   first_name: string | null;
   last_name: string | null;
   email: string;
-  role: 'admin' | 'manager' | 'viewer' | 'blocked';
+  role: 'admin' | 'tech_support' | 'warehouse_staff' | 'sales' | 'blocked';
   is_blocked: boolean | null;
   blocked_at: string | null;
   blocked_by: string | null;
@@ -377,7 +377,7 @@ export async function toggleUserAuthorization(
   }
 }
 
-export async function updateUserRole(profileId: string, newRole: 'admin' | 'manager' | 'viewer', accessToken?: string): Promise<{ success: boolean; error: string | null }> {
+export async function updateUserRole(profileId: string, newRole: 'admin' | 'tech_support' | 'warehouse_staff' | 'sales', accessToken?: string): Promise<{ success: boolean; error: string | null }> {
   if (!accessToken) {
     return { success: false, error: 'Access token required' };
   }
