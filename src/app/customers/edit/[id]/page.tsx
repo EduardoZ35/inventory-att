@@ -38,7 +38,7 @@ export default function EditCustomerPage() {
 
                  const { data, error: fetchError } = await supabase
            .from('clients')
-           .select('id, name, email, phone, address, country, region_id, region_name, provincia_id, provincia_name, commune_id, commune_name, created_at')
+           .select('id, name, email, phone, address, client_type, contact_person, service_level, organization, country, region_id, region_name, provincia_id, provincia_name, commune_id, commune_name, created_at')
            .eq('id', id)
            .single();
 

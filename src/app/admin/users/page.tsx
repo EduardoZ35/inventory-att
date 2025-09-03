@@ -10,7 +10,7 @@ interface Profile {
   first_name: string | null;
   last_name: string | null;
   email: string; // Asumimos que el email se puede obtener del user.email
-  role: 'admin' | 'manager' | 'viewer' | 'blocked';
+  role: 'admin' | 'tech_support' | 'warehouse_staff' | 'sales' | 'blocked';
   is_blocked: boolean | null; // Estado de bloqueo
   blocked_at: string | null; // Fecha cuando fue bloqueado
   blocked_by: string | null; // ID del admin que lo bloqueó
@@ -47,7 +47,7 @@ export default function UserAdminPage() {
   const [googleAccountInfo, setGoogleAccountInfo] = useState<any>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'admin' | 'manager' | 'viewer'>('viewer');
+  const [inviteRole, setInviteRole] = useState<'admin' | 'tech_support' | 'warehouse_staff' | 'sales'>('tech_support');
   const [inviteLoading, setInviteLoading] = useState(false);
   const router = useRouter();
 
@@ -929,6 +929,46 @@ export default function UserAdminPage() {
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Soporte Técnico</p>
+                <p className="text-2xl font-bold text-gray-900">{profiles.filter(p => p.role === 'tech_support').length}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Personal de Bodega</p>
+                <p className="text-2xl font-bold text-gray-900">{profiles.filter(p => p.role === 'warehouse_staff').length}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Ventas</p>
+                <p className="text-2xl font-bold text-gray-900">{profiles.filter(p => p.role === 'sales').length}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center">
               <div className="p-2 bg-red-100 rounded-lg">
                 <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
@@ -990,24 +1030,29 @@ export default function UserAdminPage() {
                         onChange={(e) => {
                           // Solo permitir cambiar a roles válidos para la función
                           const value = e.target.value;
-                          if (value === 'admin' || value === 'manager' || value === 'viewer') {
+                          if (value === 'admin' || value === 'tech_support' || value === 'warehouse_staff' || value === 'sales') {
                             handleRoleChange(profile.id, value);
                           }
                         }}
                         className={`text-sm font-medium px-3 py-1 rounded-full border-0 focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
                           profile.role === 'admin' 
                             ? 'bg-red-100 text-red-800 focus:ring-red-500' 
-                            : profile.role === 'manager'
-                            ? 'bg-yellow-100 text-yellow-800 focus:ring-yellow-500'
+                            : profile.role === 'tech_support'
+                            ? 'bg-blue-100 text-blue-800 focus:ring-blue-500'
+                            : profile.role === 'warehouse_staff'
+                            ? 'bg-purple-100 text-purple-800 focus:ring-purple-500'
+                            : profile.role === 'sales'
+                            ? 'bg-green-100 text-green-800 focus:ring-green-500'
                             : profile.role === 'blocked'
                             ? 'bg-gray-100 text-gray-800 focus:ring-gray-500'
-                            : 'bg-green-100 text-green-800 focus:ring-green-500'
+                            : 'bg-yellow-100 text-yellow-800 focus:ring-yellow-500'
                         }`}
                         disabled={profile.is_blocked === true}
                       >
-                        <option value="admin">👑 Admin</option>
-                        <option value="manager">⚡ Manager</option>
-                        <option value="viewer">👁️ Viewer</option>
+                        <option value="admin">👑 Administrador</option>
+                        <option value="tech_support">🔧 Soporte Técnico</option>
+                        <option value="warehouse_staff">📦 Personal de Bodega</option>
+                        <option value="sales">💼 Ventas</option>
                         <option value="blocked">🚫 Bloqueado</option>
                   </select>
                 </td>
@@ -1776,13 +1821,14 @@ export default function UserAdminPage() {
                   </label>
                   <select
                     value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value as 'admin' | 'manager' | 'viewer')}
+                    onChange={(e) => setInviteRole(e.target.value as 'admin' | 'tech_support' | 'warehouse_staff' | 'sales')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     disabled={inviteLoading}
                   >
-                    <option value="viewer">👁️ Viewer - Solo lectura</option>
-                    <option value="manager">⚡ Manager - Lectura y escritura</option>
-                    <option value="admin">👑 Admin - Control total</option>
+                    <option value="tech_support">🔧 Soporte Técnico - Instalar y reparar equipos</option>
+                    <option value="warehouse_staff">📦 Personal de Bodega - Gestionar inventario</option>
+                    <option value="sales">💼 Ventas - Gestionar clientes y pedidos</option>
+                    <option value="admin">👑 Administrador - Control total</option>
                   </select>
                 </div>
 

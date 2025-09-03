@@ -22,7 +22,7 @@ export default function CustomersClient() {
 
       const { data, error: fetchError } = await supabase
         .from('clients')
-        .select('id, name, email, phone, address, country, region_id, region_name, provincia_id, provincia_name, commune_id, commune_name, created_at')
+        .select('id, name, email, phone, address, client_type, contact_person, service_level, organization, created_at')
         .order('name', { ascending: true });
 
       if (fetchError) {

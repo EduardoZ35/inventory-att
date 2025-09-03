@@ -27,7 +27,7 @@ export default function EditWarehousePage() {
 
         const { data, error: fetchError } = await supabase
           .from('warehouses')
-          .select('id, name, location, capacity, created_at')
+          .select('id, name, location, warehouse_type, capacity, responsible_person, created_at, updated_at')
           .eq('id', id)
           .single();
 

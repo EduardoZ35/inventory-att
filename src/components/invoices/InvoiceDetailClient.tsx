@@ -44,7 +44,7 @@ export default function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientPr
       // Obtener datos del proveedor por separado
       const { data: providerData, error: providerError } = await supabase
         .from('providers')
-        .select('id, name, rut, address, phone, email, organization')
+        .select('id, name, rut, address, phone, email, provider_type, contact_person, credit_terms, delivery_time, created_at, updated_at')
         .eq('id', invoiceData.provider_id)
         .single();
 

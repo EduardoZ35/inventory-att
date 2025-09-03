@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import type { ProductType } from '@/types';
+import type { Equipment, EquipmentCategory, EquipmentSubcategory } from '@/types';
 
 export default function ProductTypesClient() {
-  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+  const [productTypes, setProductTypes] = useState<Equipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,8 +21,9 @@ export default function ProductTypesClient() {
       setError(null);
 
       const { data, error: fetchError } = await supabase
-        .from('product_types')
-        .select('id, name, description')
+        .from('equipment')
+        .select('id, name, description, equipment_category, equipment_subcategory, price, minimum_stock, critical_stock, deleted_at, created_at, updated_at')
+        .is('deleted_at', null)
         .order('name', { ascending: true });
 
       if (fetchError) {
@@ -47,8 +48,8 @@ export default function ProductTypesClient() {
 
     try {
       const { error } = await supabase
-        .from('product_types')
-        .delete()
+        .from('equipment')
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', typeId);
 
       if (error) {

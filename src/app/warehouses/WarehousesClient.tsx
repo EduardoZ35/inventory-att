@@ -22,7 +22,7 @@ export default function WarehousesClient() {
 
       const { data, error: fetchError } = await supabase
         .from('warehouses')
-        .select('id, name, location, capacity, created_at')
+        .select('id, name, location, warehouse_type, capacity, responsible_person, created_at')
         .order('name', { ascending: true });
 
       if (fetchError) {
@@ -115,7 +115,7 @@ export default function WarehousesClient() {
           Bodegas
         </h1>
         <p className="page-subtitle">
-          Gestiona las bodegas y almacenes de tu empresa
+          Gestiona bodegas especializadas: Principal, En tránsito y Taller técnico
         </p>
       </div>
 
@@ -138,14 +138,14 @@ export default function WarehousesClient() {
         <div className="stats-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="stats-label">Capacidad Total</p>
+              <p className="stats-label">Bodega Principal</p>
               <p className="stats-number text-green-600">
-                {warehouses.reduce((total, warehouse) => total + (warehouse.capacity || 0), 0)}
+                {warehouses.filter(w => w.warehouse_type === 'main').length}
               </p>
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
               <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
           </div>
@@ -154,12 +154,13 @@ export default function WarehousesClient() {
         <div className="stats-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="stats-label">Búsquedas</p>
-              <p className="stats-number text-purple-600">{filteredWarehouses.length}</p>
+              <p className="stats-label">Taller Técnico</p>
+              <p className="stats-number text-purple-600">{warehouses.filter(w => w.warehouse_type === 'repair_shop').length}</p>
             </div>
             <div className="p-3 bg-purple-100 rounded-lg">
               <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
           </div>
@@ -212,13 +213,16 @@ export default function WarehousesClient() {
                     Bodega
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                    Tipo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Ubicación
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Capacidad
+                    Responsable
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Creada
+                    Capacidad
                   </th>
                   {canManage() && (
                     <th className="relative px-6 py-3">
@@ -247,19 +251,32 @@ export default function WarehousesClient() {
                         </div>
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        warehouse.warehouse_type === 'main' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                        warehouse.warehouse_type === 'transit' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                        warehouse.warehouse_type === 'repair_shop' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
+                        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      }`}>
+                        {warehouse.warehouse_type === 'main' ? 'Principal' :
+                         warehouse.warehouse_type === 'transit' ? 'En Tránsito' :
+                         warehouse.warehouse_type === 'repair_shop' ? 'Taller Técnico' :
+                         warehouse.warehouse_type || '-'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 dark:text-gray-300">
                         {warehouse.location}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 dark:text-gray-300">
-                        {warehouse.capacity ? warehouse.capacity.toLocaleString() : '-'} unidades
+                        {warehouse.responsible_person || '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-gray-300">
-                        {warehouse.created_at ? new Date(warehouse.created_at).toLocaleDateString('es-CL') : '-'}
+                        {warehouse.capacity ? warehouse.capacity.toLocaleString() : '-'} unidades
                       </div>
                     </td>
                     {canManage() && (

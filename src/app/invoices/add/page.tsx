@@ -21,7 +21,7 @@ export default function AddInvoicePage() {
     const fetchClients = async () => {
       const { data, error } = await supabase
         .from('clients')
-        .select('id, name, email')
+        .select('id, name, email, client_type, contact_person, technical_contact, contract_number, service_level')
         .order('name');
 
       if (error) {

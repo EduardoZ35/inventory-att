@@ -1,53 +1,103 @@
-# Configuración de Base de Datos - Sistema de Inventario
-
-Este documento contiene las instrucciones para configurar todas las tablas necesarias en Supabase para el sistema de inventario especializado en Control & Soporte Tecnológico.
-
-## ❗ SOLUCIÓN RÁPIDA
-
-Si ves el error "Es posible que la tabla 'warehouses' no exista en la base de datos", necesitas ejecutar el script SQL completo en Supabase.
-
-## Instrucciones
-
-1. Ve a tu proyecto en [Supabase](https://supabase.com/dashboard)
-2. Navega a **SQL Editor**
-3. Crea una nueva query y ejecuta el siguiente script SQL
-
-## Script SQL Completo
-
-```sql
 -- =============================================================================
--- SISTEMA DE INVENTARIO - CONTROL & SOPORTE TECNOLÓGICO
+-- SCRIPT DE CORRECCIÓN PARA BASE DE DATOS EXISTENTE
+-- =============================================================================
+-- Este script corrige tablas que ya existen pero tienen estructura incorrecta
+
+-- =============================================================================
+-- 1. CORREGIR TABLA PROFILES
+-- =============================================================================
+
+-- Agregar columnas faltantes a profiles si no existen
+DO $$ 
+BEGIN
+    -- Agregar email si no existe
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'email') THEN
+        ALTER TABLE profiles ADD COLUMN email TEXT;
+    END IF;
+    
+    -- Hacer email único si existe pero no tiene constrainst
+    BEGIN
+        ALTER TABLE profiles ADD CONSTRAINT profiles_email_unique UNIQUE (email);
+    EXCEPTION
+        WHEN duplicate_table THEN
+            -- El constraint ya existe, no hacer nada
+            NULL;
+        WHEN others THEN
+            -- Otro error, intentar hacer email NOT NULL
+            NULL;
+    END;
+
+    -- Agregar otras columnas faltantes
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'first_name') THEN
+        ALTER TABLE profiles ADD COLUMN first_name TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'last_name') THEN
+        ALTER TABLE profiles ADD COLUMN last_name TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'role') THEN
+        ALTER TABLE profiles ADD COLUMN role TEXT DEFAULT 'blocked';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'is_blocked') THEN
+        ALTER TABLE profiles ADD COLUMN is_blocked BOOLEAN DEFAULT false;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'blocked_at') THEN
+        ALTER TABLE profiles ADD COLUMN blocked_at TIMESTAMPTZ;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'blocked_by') THEN
+        ALTER TABLE profiles ADD COLUMN blocked_by UUID REFERENCES profiles(id);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'blocked_reason') THEN
+        ALTER TABLE profiles ADD COLUMN blocked_reason TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'authorized') THEN
+        ALTER TABLE profiles ADD COLUMN authorized BOOLEAN DEFAULT false;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'authorized_at') THEN
+        ALTER TABLE profiles ADD COLUMN authorized_at TIMESTAMPTZ;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'authorized_by') THEN
+        ALTER TABLE profiles ADD COLUMN authorized_by UUID REFERENCES profiles(id);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'auth_request_pending') THEN
+        ALTER TABLE profiles ADD COLUMN auth_request_pending BOOLEAN DEFAULT true;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'auth_request_date') THEN
+        ALTER TABLE profiles ADD COLUMN auth_request_date TIMESTAMPTZ DEFAULT NOW();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'auth_request_status') THEN
+        ALTER TABLE profiles ADD COLUMN auth_request_status TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'created_at') THEN
+        ALTER TABLE profiles ADD COLUMN created_at TIMESTAMPTZ DEFAULT NOW();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'updated_at') THEN
+        ALTER TABLE profiles ADD COLUMN updated_at TIMESTAMPTZ DEFAULT NOW();
+    END IF;
+
+END $$;
+
+-- =============================================================================
+-- 2. CREAR TABLAS FALTANTES
 -- =============================================================================
 
 -- Crear extensión UUID si no existe
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- =============================================================================
--- 1. TABLA PROFILES (Usuarios del sistema)
--- =============================================================================
-CREATE TABLE IF NOT EXISTS profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    first_name TEXT,
-    last_name TEXT,
-    email TEXT NOT NULL UNIQUE,
-    role TEXT NOT NULL DEFAULT 'blocked' CHECK (role IN ('admin', 'tech_support', 'warehouse_staff', 'sales', 'blocked')),
-    is_blocked BOOLEAN DEFAULT false,
-    blocked_at TIMESTAMPTZ,
-    blocked_by UUID REFERENCES profiles(id),
-    blocked_reason TEXT,
-    authorized BOOLEAN DEFAULT false,
-    authorized_at TIMESTAMPTZ,
-    authorized_by UUID REFERENCES profiles(id),
-    auth_request_pending BOOLEAN DEFAULT true,
-    auth_request_date TIMESTAMPTZ DEFAULT NOW(),
-    auth_request_status TEXT CHECK (auth_request_status IN ('approved', 'rejected', 'pending')),
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- =============================================================================
--- 2. TABLA WAREHOUSES (Bodegas)
--- =============================================================================
+-- Tabla WAREHOUSES
 CREATE TABLE IF NOT EXISTS warehouses (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -59,9 +109,7 @@ CREATE TABLE IF NOT EXISTS warehouses (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 3. TABLA EQUIPMENT (Equipos/Productos)
--- =============================================================================
+-- Tabla EQUIPMENT
 CREATE TABLE IF NOT EXISTS equipment (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -85,9 +133,7 @@ CREATE TABLE IF NOT EXISTS equipment (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 4. TABLA CLIENTS (Clientes)
--- =============================================================================
+-- Tabla CLIENTS
 CREATE TABLE IF NOT EXISTS clients (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -103,9 +149,7 @@ CREATE TABLE IF NOT EXISTS clients (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 5. TABLA EQUIPMENT_INSTANCES (Instancias específicas de equipos)
--- =============================================================================
+-- Tabla EQUIPMENT_INSTANCES
 CREATE TABLE IF NOT EXISTS equipment_instances (
     id SERIAL PRIMARY KEY,
     equipment_id INTEGER NOT NULL REFERENCES equipment(id),
@@ -123,9 +167,7 @@ CREATE TABLE IF NOT EXISTS equipment_instances (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 6. TABLA PROVIDERS (Proveedores)
--- =============================================================================
+-- Tabla PROVIDERS
 CREATE TABLE IF NOT EXISTS providers (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -136,14 +178,12 @@ CREATE TABLE IF NOT EXISTS providers (
     provider_type TEXT NOT NULL CHECK (provider_type IN ('equipment_distributor', 'parts_manufacturer', 'supplies_provider')),
     contact_person TEXT,
     credit_terms TEXT,
-    delivery_time INTEGER, -- días
+    delivery_time INTEGER,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 7. TABLA PURCHASE_INVOICES (Facturas de compra)
--- =============================================================================
+-- Tabla PURCHASE_INVOICES
 CREATE TABLE IF NOT EXISTS purchase_invoices (
     id SERIAL PRIMARY KEY,
     invoice_number TEXT,
@@ -157,9 +197,7 @@ CREATE TABLE IF NOT EXISTS purchase_invoices (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 8. TABLA PURCHASE_INVOICE_ITEMS (Items de facturas de compra)
--- =============================================================================
+-- Tabla PURCHASE_INVOICE_ITEMS
 CREATE TABLE IF NOT EXISTS purchase_invoice_items (
     id SERIAL PRIMARY KEY,
     purchase_invoice_id INTEGER NOT NULL REFERENCES purchase_invoices(id) ON DELETE CASCADE,
@@ -170,9 +208,7 @@ CREATE TABLE IF NOT EXISTS purchase_invoice_items (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 9. TABLA SERVICE_ORDERS (Órdenes de servicio técnico)
--- =============================================================================
+-- Tabla SERVICE_ORDERS
 CREATE TABLE IF NOT EXISTS service_orders (
     id SERIAL PRIMARY KEY,
     order_number TEXT NOT NULL UNIQUE,
@@ -192,9 +228,7 @@ CREATE TABLE IF NOT EXISTS service_orders (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 10. TABLA SERVICE_ORDER_PARTS (Partes usadas en órdenes de servicio)
--- =============================================================================
+-- Tabla SERVICE_ORDER_PARTS
 CREATE TABLE IF NOT EXISTS service_order_parts (
     id SERIAL PRIMARY KEY,
     service_order_id INTEGER NOT NULL REFERENCES service_orders(id) ON DELETE CASCADE,
@@ -203,9 +237,7 @@ CREATE TABLE IF NOT EXISTS service_order_parts (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =============================================================================
--- 11. TABLA STOCK_MOVEMENTS (Movimientos de stock)
--- =============================================================================
+-- Tabla STOCK_MOVEMENTS
 CREATE TABLE IF NOT EXISTS stock_movements (
     id SERIAL PRIMARY KEY,
     equipment_instance_id INTEGER NOT NULL REFERENCES equipment_instances(id),
@@ -225,35 +257,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
 );
 
 -- =============================================================================
--- ÍNDICES PARA MEJORAR RENDIMIENTO
--- =============================================================================
-
--- Índices para profiles
-CREATE INDEX IF NOT EXISTS idx_profiles_email ON profiles(email);
-CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
-
--- Índices para equipment
-CREATE INDEX IF NOT EXISTS idx_equipment_category ON equipment(equipment_category);
-CREATE INDEX IF NOT EXISTS idx_equipment_subcategory ON equipment(equipment_subcategory);
-CREATE INDEX IF NOT EXISTS idx_equipment_deleted_at ON equipment(deleted_at);
-
--- Índices para equipment_instances
-CREATE INDEX IF NOT EXISTS idx_equipment_instances_serial ON equipment_instances(serial_number);
-CREATE INDEX IF NOT EXISTS idx_equipment_instances_status ON equipment_instances(status);
-CREATE INDEX IF NOT EXISTS idx_equipment_instances_location ON equipment_instances(location_id);
-
--- Índices para service_orders
-CREATE INDEX IF NOT EXISTS idx_service_orders_status ON service_orders(status);
-CREATE INDEX IF NOT EXISTS idx_service_orders_client ON service_orders(client_id);
-CREATE INDEX IF NOT EXISTS idx_service_orders_technician ON service_orders(technician_id);
-CREATE INDEX IF NOT EXISTS idx_service_orders_created_at ON service_orders(created_at);
-
--- Índices para stock_movements
-CREATE INDEX IF NOT EXISTS idx_stock_movements_type ON stock_movements(movement_type);
-CREATE INDEX IF NOT EXISTS idx_stock_movements_created_at ON stock_movements(created_at);
-
--- =============================================================================
--- DATOS INICIALES
+-- 3. INSERTAR DATOS INICIALES
 -- =============================================================================
 
 -- Insertar bodegas por defecto
@@ -300,75 +304,8 @@ INSERT INTO providers (name, rut, address, phone, email, provider_type, contact_
 ('Papeles y Consumibles SA', '89.456.123-8', 'Las Condes 890, Santiago', '+56934567890', 'pedidos@papelcons.cl', 'supplies_provider', 'Carlos Mendoza', '7 días', 2)
 ON CONFLICT DO NOTHING;
 
--- Insertar algunas instancias de equipos de ejemplo
-DO $$
-DECLARE
-    warehouse_main_id INTEGER;
-    equipment_reloj_id INTEGER;
-    equipment_fuente_id INTEGER;
-BEGIN
-    -- Obtener IDs
-    SELECT id INTO warehouse_main_id FROM warehouses WHERE warehouse_type = 'main' LIMIT 1;
-    SELECT id INTO equipment_reloj_id FROM equipment WHERE name LIKE '%ZK-U160%' LIMIT 1;
-    SELECT id INTO equipment_fuente_id FROM equipment WHERE name LIKE '%Fuente de Poder%' LIMIT 1;
-    
-    -- Solo insertar si encontramos los registros
-    IF warehouse_main_id IS NOT NULL AND equipment_reloj_id IS NOT NULL THEN
-        INSERT INTO equipment_instances (equipment_id, serial_number, location_id, status, condition) VALUES
-        (equipment_reloj_id, 'ZK001234', warehouse_main_id, 'available', 'new'),
-        (equipment_reloj_id, 'ZK001235', warehouse_main_id, 'available', 'new')
-        ON CONFLICT (serial_number) DO NOTHING;
-    END IF;
-    
-    IF warehouse_main_id IS NOT NULL AND equipment_fuente_id IS NOT NULL THEN
-        INSERT INTO equipment_instances (equipment_id, serial_number, location_id, status, condition) VALUES
-        (equipment_fuente_id, 'FP12V001', warehouse_main_id, 'available', 'new'),
-        (equipment_fuente_id, 'FP12V002', warehouse_main_id, 'available', 'new'),
-        (equipment_fuente_id, 'FP12V003', warehouse_main_id, 'available', 'new')
-        ON CONFLICT (serial_number) DO NOTHING;
-    END IF;
-END $$;
-
 -- =============================================================================
--- TRIGGERS PARA ACTUALIZAR TIMESTAMPS
--- =============================================================================
-
--- Función para actualizar updated_at
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Triggers para actualizar updated_at automáticamente
-DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
-CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_warehouses_updated_at ON warehouses;
-CREATE TRIGGER update_warehouses_updated_at BEFORE UPDATE ON warehouses FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_equipment_updated_at ON equipment;
-CREATE TRIGGER update_equipment_updated_at BEFORE UPDATE ON equipment FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_clients_updated_at ON clients;
-CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_equipment_instances_updated_at ON equipment_instances;
-CREATE TRIGGER update_equipment_instances_updated_at BEFORE UPDATE ON equipment_instances FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_providers_updated_at ON providers;
-CREATE TRIGGER update_providers_updated_at BEFORE UPDATE ON providers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_purchase_invoices_updated_at ON purchase_invoices;
-CREATE TRIGGER update_purchase_invoices_updated_at BEFORE UPDATE ON purchase_invoices FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_service_orders_updated_at ON service_orders;
-CREATE TRIGGER update_service_orders_updated_at BEFORE UPDATE ON service_orders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- =============================================================================
--- POLÍTICAS RLS (Row Level Security)
+-- 4. HABILITAR ROW LEVEL SECURITY
 -- =============================================================================
 
 -- Habilitar RLS en todas las tablas
@@ -384,20 +321,27 @@ ALTER TABLE service_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service_order_parts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE stock_movements ENABLE ROW LEVEL SECURITY;
 
--- Limpiar políticas existentes
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON profiles;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON warehouses;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON equipment;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON clients;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON equipment_instances;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON providers;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON purchase_invoices;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON purchase_invoice_items;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON service_orders;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON service_order_parts;
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON stock_movements;
+-- Limpiar políticas existentes si existen
+DO $$ 
+BEGIN
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON profiles;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON warehouses;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON equipment;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON clients;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON equipment_instances;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON providers;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON purchase_invoices;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON purchase_invoice_items;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON service_orders;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON service_order_parts;
+    DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON stock_movements;
+EXCEPTION
+    WHEN others THEN
+        -- Las políticas no existen, continuar
+        NULL;
+END $$;
 
--- Crear políticas básicas (permitir todo para usuarios autenticados por ahora)
+-- Crear políticas básicas
 CREATE POLICY "Enable all operations for authenticated users" ON profiles FOR ALL TO authenticated USING (true);
 CREATE POLICY "Enable all operations for authenticated users" ON warehouses FOR ALL TO authenticated USING (true);
 CREATE POLICY "Enable all operations for authenticated users" ON equipment FOR ALL TO authenticated USING (true);
@@ -414,47 +358,4 @@ CREATE POLICY "Enable all operations for authenticated users" ON stock_movements
 -- FINALIZADO
 -- =============================================================================
 
-SELECT 'Base de datos configurada exitosamente para Sistema de Inventario - Control & Soporte Tecnológico' AS status;
-```
-
-## Verificación
-
-Después de ejecutar el script, puedes verificar que las tablas se crearon correctamente ejecutando:
-
-```sql
-SELECT table_name 
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
-ORDER BY table_name;
-```
-
-Deberías ver las siguientes tablas:
-- `clients`
-- `equipment`
-- `equipment_instances`
-- `profiles`
-- `providers`
-- `purchase_invoice_items`
-- `purchase_invoices`
-- `service_order_parts`
-- `service_orders`
-- `stock_movements`
-- `warehouses`
-
-## Próximos Pasos
-
-1. **Ejecutar el script SQL completo** en el SQL Editor de Supabase
-2. **Verificar que todas las tablas se crearon** con la consulta de verificación
-3. **Probar la aplicación** - ya no deberías ver errores de tablas faltantes
-4. **Configurar usuarios** - el primer usuario registrado necesitará ser autorizado manualmente en la tabla `profiles`
-
-## Notas Importantes
-
-- Las políticas RLS están configuradas para permitir todo a usuarios autenticados
-- En producción, deberías configurar políticas más específicas según roles
-- Los datos de ejemplo incluyen bodegas básicas, equipos típicos del rubro y clientes de muestra
-- Todos los campos obligatorios tienen valores por defecto o validaciones apropiadas
-
-## ⚡ Solución al Error Actual
-
-El error que estás viendo indica que la tabla `warehouses` no existe. Ejecutar este script completo resolverá el problema y creará todas las tablas necesarias para el sistema de inventario especializado en Control & Soporte Tecnológico.
+SELECT 'Base de datos corregida y configurada exitosamente' AS status;
